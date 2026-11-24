@@ -44,6 +44,8 @@ header{max-width:720px;margin:0 auto;padding:calc(8px + env(safe-area-inset-top)
 .auto[aria-checked=true] .pill i{transform:translateX(22px);border-color:var(--surface)}
 h2{margin:32px 0 12px;font-size:12px;line-height:16px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .tags{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.testbtn{display:flex;align-items:center;justify-content:center;min-height:56px;margin-top:16px;background:var(--blue);color:var(--on-blue);text-decoration:none;font:700 18px/24px "Helvetica Neue",Helvetica,Arial,sans-serif;border-radius:4px;transition:background-color .15s,color .15s}
+.testbtn:hover{background:var(--ink);color:var(--surface)}
 .tagbtn{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:64px;padding:12px 16px;background:var(--raised);color:var(--ink);text-decoration:none;font:700 18px/24px "Helvetica Neue",Helvetica,Arial,sans-serif;transition:background-color .15s,color .15s}
 .tagbtn i{font-style:normal;font-weight:400;color:var(--muted);font-variant-numeric:tabular-nums}
 .tagbtn:hover{background:var(--ink);color:var(--surface)}.tagbtn:hover i{color:var(--surface)}
@@ -1143,17 +1145,21 @@ function prevCard(){
   D.revealed=false;render();
 }
 function flip(){
+  if(!D.queue.length)return;
   D.revealed=!D.revealed;render();
   if(D.revealed&&AUTO&&BY_ID[D.queue[0]].dir==='S')speak(spoken(BY_ID[D.queue[0]]));
 }
 function nextCard(again){
+  if(!D.queue.length)return;
   const id=D.queue.shift();
   D.hist.push(id);if(D.hist.length>100)D.hist.shift();
   if(again)D.queue.splice(Math.min(3,D.queue.length),0,id);
-  if(!D.queue.length)D.queue=shuffle(D.ids);
+  if(!D.queue.length&&!D.finite)D.queue=shuffle(D.ids);
   D.revealed=false;render();
 }
 function viewCards(){
+  const prevBtn=`<button class="btn sq" data-a="prev" aria-label="Previous card" ${D.hist.length?'':'disabled'}>←</button>`;
+  if(!D.queue.length)return {html:`<div class="card"><div class="big">Done</div></div>`,act:prevBtn+`<button class="btn" data-a="home">Home</button><button class="btn pri" data-a="retest">Test again</button>`};
   const x=BY_ID[D.queue[0]], isH=x.dir==='H';
   const [main,note]=splitNote(x.en);
   const sen=sentOf(x), vb=x.verb||VERB[x.id];
@@ -1331,6 +1337,7 @@ const SECTIONS={
 };
 function route(){
   const h=decodeURIComponent(location.hash.slice(1)).split('/');
+  if(h[0]==='test')return{type:'deck',test:true,key:'#test'};
   const sec=SECTIONS[h[0]];
   if(sec){const item=sec.items.find(i=>i.id===h[1]);return item?{type:'page',key:h[0],sec,item}:{type:'list',key:h[0],sec}}
   const pool=h[0]==='g'?GRAM[h[1]]:h[0]==='s'?SIT[h[1]]:h[0]==='t'?TIME[h[1]]:h[0]==='v'?VOC[h[1]]:h[0]==='all'?CARDS.map(c=>c.id):null;
@@ -1339,7 +1346,7 @@ function route(){
 function viewHome(){
   const grp=(title,map,k)=>`<h2>${title}</h2><div class="tags">${Object.entries(map).map(([n,ids])=>
     `<a class="tagbtn" href="#${k}/${encodeURIComponent(n)}"><span>${esc(n)}</span><i>${ids.length}</i></a>`).join('')}</div>`;
-  return grp('Grammar',GRAM,'g')+grp('Situation',SIT,'s')+grp('Time',TIME,'t')+grp('Vocabulary',VOC,'v')+
+  return `<a class="testbtn" href="#test">Test now</a>`+grp('Grammar',GRAM,'g')+grp('Situation',SIT,'s')+grp('Time',TIME,'t')+grp('Vocabulary',VOC,'v')+
     `<div class="tags"><a class="tagbtn" href="#all"><span>All cards</span><i>${CARDS.length}</i></a></div>`+
     `<h2>Reference</h2><div class="tags">${Object.entries(SECTIONS).map(([k,s])=>`<a class="tagbtn" href="#${k}"><span>${s.title}</span><i>${s.items.length}</i></a>`).join('')}</div>`;
 }
@@ -1347,7 +1354,7 @@ function viewList(sec,key){
   return `<div class="tags">${sec.items.map(v=>`<a class="tagbtn" href="#${key}/${encodeURIComponent(v.id)}"><span>${esc(v.label)}</span><i>${esc(v.sub)}</i></a>`).join('')}</div>`;
 }
 function showAuto(){const b=$('#auto');b.setAttribute('aria-checked',AUTO)}
-function autoplay(){if(AUTO&&D&&!D.revealed&&BY_ID[D.queue[0]].dir==='H')speak(spoken(BY_ID[D.queue[0]]))}
+function autoplay(){if(AUTO&&D&&D.queue.length&&!D.revealed&&BY_ID[D.queue[0]].dir==='H')speak(spoken(BY_ID[D.queue[0]]))}
 let curKey=null;
 function paint(html,act){$('#app').innerHTML=html;$('#act').innerHTML=act||'';window.scrollTo(0,0)}
 function render(){
@@ -1362,7 +1369,7 @@ function render(){
   if(r.type==='list'){D=null;curKey=null;return paint(viewList(r.sec,r.key))}
   if(r.type==='page'){D=null;curKey=null;return paint(r.sec.page(r.item))}
   const fresh=!D||curKey!==r.key;
-  if(fresh){curKey=r.key;newDeck(r.pool)}
+  if(fresh){curKey=r.key;newDeck(r.test?shuffle(CARDS.map(x=>x.id)).slice(0,50):r.pool);if(r.test)D.finite=true}
   const v=viewCards();paint(v.html,v.act);
   if(fresh)autoplay();
 }
@@ -1372,6 +1379,8 @@ document.addEventListener('click',e=>{
   const b=e.target.closest('[data-a]');if(!b)return;
   switch(b.dataset.a){
     case'flip':flip();break;
+    case'home':location.hash='';break;
+    case'retest':newDeck(shuffle(CARDS.map(x=>x.id)).slice(0,50));D.finite=true;render();break;
     case'prev':prevCard();break;
     case'next':nextCard(false);autoplay();break;
     case'again':nextCard(true);autoplay();break;
