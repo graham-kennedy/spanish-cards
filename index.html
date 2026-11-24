@@ -1,0 +1,1296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b0b0b" media="(prefers-color-scheme: dark)">
+<title>Café Español</title>
+<style>
+:root{
+  --surface:#ffffff; --raised:#f0f0f0; --ink:#000000; --muted:#5a5c5c; --line:#d6d6d6; --strong:#767878;
+  --blue:#186cbb; --on-blue:#ffffff;
+  --green:#137a6d; --green-l:#d0e4e2; --orange:#b44d00; --orange-l:#f0dbcc;
+  --good:var(--green); --bad:var(--orange);
+}
+@media (prefers-color-scheme: dark){
+  :root{--surface:#0b0b0b; --raised:#1a1a1a; --ink:#f2f2f2; --muted:#a8aaaa; --line:#2e2e2e; --strong:#8a8c8c;
+    --blue:#5aa6ec; --on-blue:#000000;}
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+button{touch-action:manipulation}
+body{margin:0;background:var(--surface);color:var(--ink);font:18px/28px "Helvetica Neue",Helvetica,Arial,sans-serif}
+h1{margin:0;font-size:22px;line-height:28px;font-weight:700;letter-spacing:-.01em}
+.dock{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:5}
+.dock>*{max-width:720px;margin-left:auto;margin-right:auto}
+.dock .act{margin-top:0;padding:12px 16px 12px;flex-wrap:nowrap}
+.dock .act>*{min-width:0}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+main{max-width:720px;margin:0 auto;padding:8px 16px calc(110px + env(safe-area-inset-bottom))}
+button.play{border:1px solid var(--strong);background:var(--surface);color:var(--ink);border-radius:4px;min-width:48px;min-height:48px;padding:8px 14px;font:inherit;font-size:16px;cursor:pointer;transition:background-color .15s,color .15s}
+button.play:hover{background:var(--ink);color:var(--surface)}
+button.play.lg{font-size:26px;padding:16px 28px;align-self:center}
+.ans .play{margin-top:8px}
+header{max-width:720px;margin:0 auto;padding:calc(8px + env(safe-area-inset-top)) 16px 0;display:flex;justify-content:space-between;align-items:center;min-height:56px}
+#back,#homelink{color:var(--blue);font:500 16px/24px "Helvetica Neue",Helvetica,Arial,sans-serif;text-decoration:none;min-height:48px;display:inline-flex;align-items:center}
+#back:hover,#homelink:hover{color:var(--ink)}
+[hidden]{display:none!important}
+.auto{display:inline-flex;align-items:center;gap:12px;min-height:48px;background:none;border:0;color:var(--ink);font:500 16px/24px "Helvetica Neue",Helvetica,Arial,sans-serif;cursor:pointer;padding:0}
+.pill{position:relative;width:52px;height:30px;border-radius:999px;background:var(--line);border:1px solid var(--strong);transition:background-color .15s,border-color .15s}
+.pill i{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:999px;background:var(--surface);border:1px solid var(--strong);transition:transform .15s}
+.auto[aria-checked=true] .pill{background:var(--blue);border-color:var(--blue)}
+.auto[aria-checked=true] .pill i{transform:translateX(22px);border-color:var(--surface)}
+h2{margin:32px 0 12px;font-size:12px;line-height:16px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tags{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.tagbtn{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:64px;padding:12px 16px;background:var(--raised);color:var(--ink);text-decoration:none;font:700 18px/24px "Helvetica Neue",Helvetica,Arial,sans-serif;transition:background-color .15s,color .15s}
+.tagbtn i{font-style:normal;font-weight:400;color:var(--muted);font-variant-numeric:tabular-nums}
+.tagbtn:hover{background:var(--ink);color:var(--surface)}.tagbtn:hover i{color:var(--surface)}
+.vex{margin-top:12px;padding:12px 16px;background:var(--raised)}.vex b,.vex span{display:block}.vex span+b{margin-top:12px}.vex span{color:var(--muted);font-size:16px}
+.tl{overflow-x:auto;margin:16px -16px 0;padding:0 16px;scroll-snap-type:x proximity;scroll-padding:0 16px;-webkit-overflow-scrolling:touch}
+.tl-track{position:relative;padding-top:8px}
+.tl-track::before{content:'';position:absolute;left:0;right:0;top:15px;height:1px;background:var(--strong)}
+.tl-c{position:relative;padding:24px 8px 0 0;scroll-snap-align:start}
+.tl-c .dot{position:absolute;top:0;left:0;width:14px;height:14px;border-radius:999px;background:var(--surface);border:2px solid var(--strong)}
+.tl-c b{display:block;font-size:18px;line-height:24px;overflow-wrap:anywhere}
+.tl-c span{display:block;color:var(--muted);font-size:14px;line-height:20px}
+.tl-c.now .dot{background:var(--blue);border-color:var(--blue)}
+.tl-c.now b{color:var(--blue)}
+.seasons{margin-top:24px}
+.season{background:var(--raised);padding:8px 12px;border-left:2px solid var(--surface);min-width:0}
+.season b,.season span{display:block;line-height:20px}.season b{font-size:16px}.season span{color:var(--muted);font-size:14px}
+.tlh{margin-top:32px}
+.tl-fit .tl-c{padding-right:4px}.tl-fit .tl-c b{font-size:16px;line-height:20px}.tl-fit .tl-c span{font-size:13px;line-height:18px}
+.vhead{margin-top:16px}.vhead .note{margin-top:4px}
+.tags+.tags{margin-top:12px}
+.card[data-a]{cursor:pointer}
+.card{background:var(--raised);border:0;border-radius:0;padding:32px 24px;margin-top:16px;min-height:min(52vh,420px);display:flex;flex-direction:column;justify-content:center;text-align:center;gap:12px}
+.tag{font-size:12px;line-height:16px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.big{font-size:32px;line-height:38px;font-weight:700;letter-spacing:-.01em;overflow-wrap:anywhere}
+.note{color:var(--muted);font-size:16px;line-height:24px}
+.ans{margin-top:8px;padding-top:16px;border-top:1px solid var(--line)}
+.ans .es{font-size:32px;line-height:38px;font-weight:700;letter-spacing:-.01em;color:var(--blue)}
+.ex{margin:12px 0 0;padding:0;list-style:none;text-align:left}
+.ex li{display:flex;gap:12px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.ex .t{flex:1}.ex .t b{display:block}.ex .t span{color:var(--muted);font-size:16px}
+.row{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap}
+.row>*{flex:1;min-width:130px}
+@media (max-width:420px){.big{font-size:28px;line-height:34px}.ans .es{font-size:28px;line-height:34px}}
+button.btn{font:500 18px/24px "Helvetica Neue",Helvetica,Arial,sans-serif;min-height:56px;transition:background-color .15s,color .15s,border-color .15s;border-radius:4px;border:1px solid var(--strong);background:var(--surface);color:var(--ink);padding:12px 16px;cursor:pointer}
+button.btn:hover{border-color:var(--ink)}
+button.pri{background:var(--blue);border-color:var(--blue);color:var(--on-blue)}
+button.pri:hover{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+button.good{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+button.good:hover{background:var(--blue);border-color:var(--blue);color:var(--on-blue)}
+button.bad{background:var(--surface);border-color:var(--strong);color:var(--ink)}
+button.btn:disabled{opacity:.5;cursor:default}
+.ex1{display:flex;gap:12px;align-items:center;text-align:left;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+.ex1 .t{flex:1}.ex1 .t b{display:block}.ex1 .t span{color:var(--muted);font-size:16px}
+.verb{text-align:left;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+.verb table{border-collapse:collapse;width:100%;margin-top:8px;font-size:16px;line-height:24px}
+.verb td{padding:4px 0;border-bottom:1px solid var(--line)}.verb td:first-child{color:var(--muted);width:50%}
+</style>
+</head>
+<body>
+<header><a id="back" href="#" hidden>← Home</a><a id="homelink" href="#" hidden>Home</a><button id="auto" class="auto" data-a="auto" role="switch" aria-checked="false" hidden><span>Auto-play</span><b class="pill"><i></i></b></button></header>
+<main id="app"></main>
+<div class="dock"><div class="act row" id="act"></div></div>
+
+<script>
+/* ---------- Deck: the 50 physical cards ---------- */
+/* dir: "S" = say it (English front). "H" = hear it (Spanish front). */
+const c=(id,dir,es,en,cat,ex)=>({id,dir,es,en,cat,ex});
+const CARDS=[
+ c(1,'S','Buenos días','Good morning','Greetings'),
+ c(2,'S','Buenas tardes','Good afternoon','Greetings'),
+ c(3,'S','Por favor / Gracias','Please / Thank you','Greetings'),
+ c(4,'S','Perdone','Excuse me','Greetings'),
+ c(5,'S','Hasta luego','See you later','Greetings'),
+ c(6,'H','De nada','You\'re welcome','Greetings'),
+ c(7,'S','una cuchara','a spoon','Table'),
+ c(8,'S','un tenedor','a fork','Table'),
+ c(9,'S','un cuchillo','a knife','Table'),
+ c(10,'S','una servilleta','a napkin','Table'),
+ c(11,'S','una taza','a cup','Table'),
+ c(12,'S','un vaso','a glass','Table'),
+ c(13,'S','un plato','a plate','Table'),
+ c(14,'S','una pajita','a straw','Table'),
+ c(15,'S','Quisiera ___','I\'d like ___','Frames',[
+   ['Quisiera un café con leche, por favor.','I\'d like a coffee with milk, please.'],
+   ['Quisiera una cuchara, por favor.','I\'d like a spoon, please.']]),
+ c(16,'S','¿Me pone ___?','Could I get ___?','Frames',[
+   ['¿Me pone un vaso de agua, por favor?','Could I get a glass of water, please?'],
+   ['¿Me pone una tostada con tomate?','Could I get toast with tomato?']]),
+ c(17,'S','¿Tiene ___?','Do you have ___?','Frames',[
+   ['¿Tiene una servilleta?','Do you have a napkin?'],
+   ['¿Tiene leche de avena?','Do you have oat milk?']]),
+ c(18,'S','¿Hay ___?','Is there ___?','Frames',[
+   ['¿Hay una mesa libre?','Is there a free table?'],
+   ['¿Hay azúcar?','Is there sugar?']]),
+ c(19,'S','¿Me puede traer ___?','Can you bring me ___?','Frames',[
+   ['¿Me puede traer un tenedor, por favor?','Can you bring me a fork, please?'],
+   ['¿Me puede traer la cuenta?','Can you bring me the bill?']]),
+ c(20,'S','una tostada con tomate','toast with tomato','Food and place'),
+ c(21,'S','un bocadillo','a sandwich (on a baguette)','Food and place'),
+ c(22,'S','la carta','the menu','Food and place'),
+ c(23,'S','la mesa','the table','Food and place'),
+ c(24,'S','con leche de avena','with oat milk','How you want it'),
+ c(25,'S','sin azúcar','without sugar','How you want it'),
+ c(26,'S','con hielo','with ice','How you want it'),
+ c(27,'S','para llevar','to take away','How you want it'),
+ c(28,'S','para tomar aquí','to have here','How you want it'),
+ c(29,'H','¿Qué le pongo?','What can I get you?','Barista says'),
+ c(30,'H','¿Algo más?','Anything else?','Barista says'),
+ c(31,'H','¿Para tomar aquí o para llevar?','Here or to go?','Barista says'),
+ c(32,'H','Ahora mismo.','Right away.','Barista says'),
+ c(33,'H','Aquí tiene.','Here you are.','Barista says'),
+ c(34,'H','Un momento.','One moment.','Barista says'),
+ c(35,'S','¿Cuánto es?','How much is it?','Paying'),
+ c(36,'S','La cuenta, por favor.','The bill, please.','Paying'),
+ c(37,'S','¿Puedo pagar con tarjeta?','Can I pay by card?','Paying'),
+ c(38,'H','Son dos euros con cincuenta.','That\'s €2.50.','Paying'),
+ c(39,'H','en efectivo','in cash','Paying'),
+ c(40,'H','el cambio','the change','Paying'),
+ c(41,'S','No entiendo.','I don\'t understand.','Getting help'),
+ c(42,'S','Más despacio, por favor.','Slower, please.','Getting help'),
+ c(43,'S','¿Puede repetir?','Can you repeat?','Getting help'),
+ c(44,'S','¿Cómo se dice…?','How do you say…?','Getting help'),
+ c(45,'S','Estoy aprendiendo español.','I\'m learning Spanish.','Getting help'),
+ c(46,'S','Quiero un café.','I want a coffee. (present, no "yo"; more direct than quisiera)','Tenses'),
+ c(47,'S','Voy a tomar un café.','I\'m going to have a coffee. (near future)','Tenses'),
+ c(48,'S','Ya he pedido.','I\'ve already ordered. (perfect)','Tenses'),
+ c(49,'S','Pedí un cortado.','I ordered a cortado. (simple past)','Tenses'),
+ c(50,'S','¿Puedo sentarme aquí?','Can I sit here? (present of poder)','Tenses'),
+ c(51,'S','lunes','Monday','Days'),
+ c(52,'S','martes','Tuesday','Days'),
+ c(53,'S','miércoles','Wednesday','Days'),
+ c(54,'S','jueves','Thursday','Days'),
+ c(55,'S','viernes','Friday','Days'),
+ c(56,'S','sábado','Saturday','Days'),
+ c(57,'S','domingo','Sunday','Days'),
+ c(58,'S','enero','January','Months'),
+ c(59,'S','febrero','February','Months'),
+ c(60,'S','marzo','March','Months'),
+ c(61,'S','abril','April','Months'),
+ c(62,'S','mayo','May','Months'),
+ c(63,'S','junio','June','Months'),
+ c(64,'S','julio','July','Months'),
+ c(65,'S','agosto','August','Months'),
+ c(66,'S','septiembre','September','Months'),
+ c(67,'S','octubre','October','Months'),
+ c(68,'S','noviembre','November','Months'),
+ c(69,'S','diciembre','December','Months'),
+ c(70,'S','la primavera','spring','Seasons'),
+ c(71,'S','el verano','summer','Seasons'),
+ c(72,'S','el otoño','autumn (fall)','Seasons'),
+ c(73,'S','el invierno','winter','Seasons'),
+ c(74,'S','hoy','today','Time words'),
+ c(75,'S','mañana','tomorrow (also "morning")','Time words'),
+ c(76,'S','ayer','yesterday','Time words'),
+ c(77,'S','ahora','now','Time words'),
+ c(78,'S','por la mañana','in the morning','Time words'),
+ c(79,'S','por la tarde','in the afternoon','Time words'),
+ c(80,'S','por la noche','at night','Time words'),
+ c(81,'S','el mediodía','noon','Time words'),
+ c(82,'S','la medianoche','midnight','Time words'),
+ c(83,'S','el día','the day','Time words'),
+ c(84,'S','la semana','the week','Weeks'),
+ c(85,'S','el fin de semana','the weekend','Weeks'),
+ c(86,'S','el mes','the month','Months'),
+ c(87,'S','el año','the year','Months'),
+ c(88,'S','la hora','the hour','Time words'),
+ c(89,'S','el minuto','the minute','Time words'),
+ c(90,'S','todos los días','every day','Weeks'),
+ c(91,'S','una vez a la semana','once a week','Weeks'),
+ c(92,'S','¿Qué hora es?','What time is it?','Telling time'),
+ c(93,'S','Es la una.','It\'s 1:00.','Telling time'),
+ c(94,'S','Son las dos.','It\'s 2:00.','Telling time'),
+ c(95,'S','Son las tres y media.','It\'s 3:30. (half past three)','Telling time'),
+ c(96,'S','Son las cuatro y cuarto.','It\'s 4:15. (quarter past four)','Telling time'),
+ c(97,'S','Son las cinco menos cuarto.','It\'s 4:45. (a quarter to five)','Telling time'),
+ c(98,'S','Son las seis y diez.','It\'s 6:10. (ten past six)','Telling time'),
+ c(99,'S','Son las siete menos cinco.','It\'s 6:55. (five to seven)','Telling time'),
+ c(100,'S','¿A qué hora abre?','What time does it open?','Telling time'),
+ c(101,'S','¿A qué hora cierra?','What time does it close?','Telling time'),
+ c(102,'S','A las ocho.','At 8:00.','Telling time'),
+ c(103,'S','de la mañana / de la tarde / de la noche','a.m. / p.m. (in the morning / afternoon / at night)','Telling time'),
+ c(104,'S','Es temprano.','It\'s early.','Telling time'),
+ c(105,'S','Es tarde.','It\'s late.','Telling time'),
+ c(106,'S','las 15:30','3:30pm. (24-hour time, said "las quince treinta" or "las tres y media")','Telling time'),
+ c(107,'S','¿Qué día es hoy?','What day is it today?','Dates'),
+ c(108,'S','Hoy es lunes.','Today is Monday.','Dates'),
+ c(109,'S','¿Qué fecha es hoy?','What\'s the date today?','Dates'),
+ c(110,'S','el veinticuatro de noviembre de 2026','November 24, 2026. (day, month, year, with "de" between)','Dates'),
+ c(111,'S','¿Cuándo?','When?','Dates'),
+ c(112,'S','24/11/2026','November 24, 2026. (Spain writes day/month/year)','Dates'),
+ c(113,'S','¿Qué?','What?','Question words'),
+ c(114,'S','¿Quién?','Who?','Question words'),
+ c(115,'S','¿Cómo?','How? (also "Pardon?")','Question words'),
+ c(116,'S','¿Dónde?','Where?','Question words'),
+ c(117,'S','¿Por qué?','Why?','Question words'),
+ c(118,'S','porque','because','Question words'),
+ c(119,'S','¿Cuánto? / ¿Cuánta?','How much?','Question words'),
+ c(120,'S','¿Cuántos? / ¿Cuántas?','How many?','Question words'),
+ c(121,'S','¿Cuál?','Which (one)?','Question words'),
+ c(122,'S','¿De dónde?','Where from?','Question words'),
+ c(123,'S','¿Adónde?','Where to?','Question words'),
+ c(124,'S','¿Con quién?','With whom?','Question words'),
+ c(125,'S','anteayer','the day before yesterday','Time words'),
+ c(126,'S','pasado mañana','the day after tomorrow','Time words'),
+ c(127,'S','esta mañana','this morning','Time words'),
+ c(128,'S','esta tarde','this afternoon','Time words'),
+ c(129,'S','esta noche','tonight','Time words'),
+ c(130,'S','anoche','last night','Time words'),
+ c(131,'S','la semana pasada','last week','Weeks'),
+ c(132,'S','la semana que viene','next week','Weeks'),
+ c(133,'S','el mes pasado','last month','Months'),
+ c(134,'S','el mes que viene','next month','Months'),
+ c(135,'S','el año pasado','last year','Months'),
+ c(136,'S','el año que viene','next year','Months'),
+ c(137,'S','el lunes pasado','last Monday','Weeks'),
+ c(138,'S','el lunes que viene','next Monday','Weeks'),
+ c(139,'S','entre semana','on weekdays','Weeks'),
+ c(140,'S','los lunes','on Mondays','Weeks'),
+ c(141,'S','antes','before','Time words'),
+ c(142,'S','después','after','Time words'),
+ c(143,'S','luego','later','Time words'),
+ c(144,'S','pronto','soon','Time words'),
+ c(145,'S','todavía','still, yet','Time words'),
+ c(146,'S','siempre','always','Time words'),
+ c(147,'S','nunca','never','Time words'),
+ c(148,'S','a veces','sometimes','Time words'),
+ c(149,'S','hace dos días','two days ago','Time words'),
+ c(150,'S','dentro de una hora','in an hour','Time words'),
+ c(151,'S','hasta las ocho','until eight','Time words'),
+ c(152,'S','desde las ocho','since eight','Time words'),
+];
+/* ---------- Vocabulary: 500 A1 words (parsed from the text below) ---------- */
+/* Line format: [marker]spanish|english|sentence|sentence in English|[six present forms]. Markers: @ verb, ~ adjective, = other word, none = noun. */
+/*VOCAB_BEGIN*/
+const VOCAB_SRC=`
+#People and family
+la familia|family|Mi familia es grande.|My family is big.
+el padre|father|El padre de Ana vive en Madrid.|Ana's father lives in Madrid.
+la madre|mother|La madre de Ana trabaja en un banco.|Ana's mother works in a bank.
+el hermano|brother|Pablo tiene un hermano.|Pablo has a brother.
+la hermana|sister|Marta tiene una hermana.|Marta has a sister.
+el hijo|son|El hijo de Ana tiene cinco años.|Ana's son is five years old.
+la hija|daughter|La hija de Pablo es muy simpática.|Pablo's daughter is very nice.
+el abuelo|grandfather|El abuelo de Marta vive en un pueblo.|Marta's grandfather lives in a village.
+la abuela|grandmother|La abuela cocina muy bien.|The grandmother cooks very well.
+el tío|uncle|El tío de Ana tiene un coche rojo.|Ana's uncle has a red car.
+la tía|aunt|La tía de Pablo habla francés.|Pablo's aunt speaks French.
+el primo|male cousin|Mi primo juega al fútbol.|My cousin plays soccer.
+la prima|female cousin|Su prima estudia en Madrid.|Her cousin studies in Madrid.
+el marido|husband|El marido de Marta es médico.|Marta's husband is a doctor.
+la mujer|woman, wife|La mujer del café es amable.|The woman at the café is kind.
+el hombre|man|El hombre lee el periódico.|The man reads the newspaper.
+el niño|boy, child|El niño bebe agua.|The boy drinks water.
+la niña|girl|La niña come una manzana.|The girl eats an apple.
+el amigo|male friend|Mi amigo se llama Pablo.|My friend is called Pablo.
+la amiga|female friend|Mi amiga se llama Ana.|My friend is called Ana.
+el chico|boy, guy|El chico pide un zumo.|The boy orders a juice.
+la chica|girl, young woman|La chica espera el autobús.|The girl waits for the bus.
+el señor|man, Mr.|El señor quiere la cuenta.|The man wants the bill.
+la señora|lady, Mrs.|La señora toma un té.|The lady has a tea.
+el vecino|neighbor|El vecino habla español e inglés.|The neighbor speaks Spanish and English.
+la persona|person|Hay cuatro personas en la mesa.|There are four people at the table.
+la gente|people|Hay mucha gente en la calle.|There are a lot of people in the street.
+el bebé|baby|El bebé duerme.|The baby sleeps.
+#Body and health
+la cabeza|head|Me duele la cabeza.|My head hurts.
+la cara|face|Ana tiene una cara muy simpática.|Ana has a very friendly face.
+el pelo|hair|Marta tiene el pelo largo.|Marta has long hair.
+el ojo|eye|Pablo tiene los ojos azules.|Pablo has blue eyes.
+la nariz|nose|Tengo la nariz fría.|My nose is cold.
+la boca|mouth|Abre la boca, por favor.|Open your mouth, please.
+la oreja|ear|Me duele la oreja.|My ear hurts.
+el diente|tooth|Me duele un diente.|A tooth hurts.
+la garganta|throat|Me duele la garganta.|My throat hurts.
+el brazo|arm|Me duele el brazo.|My arm hurts.
+la mano|hand|Tengo las manos frías.|My hands are cold.
+la pierna|leg|Me duele la pierna.|My leg hurts.
+el pie|foot|Me duele el pie.|My foot hurts.
+la espalda|back|Me duele la espalda.|My back hurts.
+el estómago|stomach|Me duele el estómago.|My stomach hurts.
+la salud|health|La salud es muy importante.|Health is very important.
+el médico|doctor|El médico trabaja en el hospital.|The doctor works at the hospital.
+el hospital|hospital|El hospital está cerca.|The hospital is near.
+la farmacia|pharmacy|La farmacia está abierta.|The pharmacy is open.
+la medicina|medicine|Necesito una medicina.|I need a medicine.
+el dolor|pain|Tengo dolor de cabeza.|I have a headache.
+la fiebre|fever|El niño tiene fiebre.|The child has a fever.
+el resfriado|cold, illness|Tengo un resfriado.|I have a cold.
+la cita|appointment|Tengo una cita con el médico.|I have an appointment with the doctor.
+#Food and drink
+el pan|bread|Quiero pan con tomate.|I want bread with tomato.
+el queso|cheese|Un bocadillo de queso, por favor.|A cheese sandwich, please.
+el jamón|ham|Quisiera un bocadillo de jamón.|I'd like a ham sandwich.
+la leche|milk|La leche está fría.|The milk is cold.
+el huevo|egg|Quiero un huevo.|I want an egg.
+la carne|meat|No como carne.|I don't eat meat.
+el pollo|chicken|El pollo está muy rico.|The chicken is very tasty.
+el pescado|fish, as food|Hoy hay pescado.|Today there is fish.
+la fruta|fruit|Como fruta todos los días.|I eat fruit every day.
+la manzana|apple|La manzana es roja.|The apple is red.
+la naranja|orange, the fruit|Quiero una naranja.|I want an orange.
+el plátano|banana|El plátano es amarillo.|The banana is yellow.
+la verdura|vegetables|Como verdura con el pollo.|I eat vegetables with the chicken.
+la ensalada|salad|Una ensalada, por favor.|A salad, please.
+la sopa|soup|La sopa está caliente.|The soup is hot.
+el arroz|rice|Hoy hay arroz con pollo.|Today there is rice with chicken.
+la pasta|pasta|Hoy hay pasta.|Today there is pasta.
+la patata|potato|Quiero patatas fritas.|I want French fries.
+el tomate|tomato|Quiero tomate en el bocadillo.|I want tomato in the sandwich.
+la sal|salt|¿Me puede traer la sal?|Can you bring me the salt?
+el azúcar|sugar|Sin azúcar, por favor.|No sugar, please.
+el aceite|oil|La tostada lleva aceite.|The toast has oil on it.
+la mantequilla|butter|Quisiera pan con mantequilla.|I'd like bread with butter.
+el vino|wine|Un vino tinto, por favor.|A red wine, please.
+la cerveza|beer|Una cerveza fría, por favor.|A cold beer, please.
+el agua|water|El agua está fría.|The water is cold.
+el zumo|juice|Quiero un zumo de naranja.|I want an orange juice.
+el té|tea|Un té con leche, por favor.|A tea with milk, please.
+el café|coffee|Un café solo, por favor.|A black coffee, please.
+el desayuno|breakfast|El desayuno es a las ocho.|Breakfast is at eight.
+la comida|food, lunch|La comida es a las dos.|Lunch is at two.
+la cena|dinner|La cena es a las nueve.|Dinner is at nine.
+el postre|dessert|De postre, un helado.|For dessert, an ice cream.
+el helado|ice cream|Quiero un helado de chocolate.|I want a chocolate ice cream.
+el chocolate|chocolate|El chocolate está muy rico.|The chocolate is very tasty.
+la tortilla|Spanish omelet|Una tortilla de patatas, por favor.|A potato omelet, please.
+el restaurante|restaurant|El restaurante abre a las nueve.|The restaurant opens at nine.
+el bar|bar|El bar está cerca de la plaza.|The bar is near the square.
+el camarero|waiter|El camarero es muy amable.|The waiter is very kind.
+la camarera|waitress|La camarera trae la cuenta.|The waitress brings the bill.
+#Home
+la casa|house, home|La casa es pequeña.|The house is small.
+el piso|apartment|El piso tiene tres habitaciones.|The apartment has three rooms.
+la habitación|room|La habitación es grande.|The room is big.
+el dormitorio|bedroom|El dormitorio está al lado del baño.|The bedroom is next to the bathroom.
+la cocina|kitchen|La cocina es muy pequeña.|The kitchen is very small.
+el baño|bathroom|¿Dónde está el baño?|Where is the bathroom?
+el salón|living room|El salón tiene un sofá.|The living room has a sofa.
+la puerta|door|La puerta está abierta.|The door is open.
+la ventana|window|Abro la ventana.|I open the window.
+la cama|bed|La cama es muy grande.|The bed is very big.
+la silla|chair|Hay cuatro sillas.|There are four chairs.
+el sofá|sofa|El sofá es azul.|The sofa is blue.
+el armario|wardrobe|La ropa está en el armario.|The clothes are in the wardrobe.
+la lámpara|lamp|La lámpara está encima de la mesa.|The lamp is on the table.
+el espejo|mirror|El espejo está en el baño.|The mirror is in the bathroom.
+la llave|key|Tengo la llave del piso.|I have the key to the apartment.
+el jardín|garden|La casa tiene un jardín.|The house has a garden.
+el balcón|balcony|El piso tiene un balcón pequeño.|The apartment has a small balcony.
+la pared|wall|La pared es blanca.|The wall is white.
+el suelo|floor|El suelo está limpio.|The floor is clean.
+la ducha|shower|La ducha está en el baño.|The shower is in the bathroom.
+la nevera|fridge|La leche está en la nevera.|The milk is in the fridge.
+la televisión|television|La televisión está en el salón.|The television is in the living room.
+el ordenador|computer|El ordenador está en la mesa.|The computer is on the table.
+el teléfono|telephone|El teléfono está en la cocina.|The telephone is in the kitchen.
+el móvil|cell phone|Mi móvil está en el bolso.|My phone is in the bag.
+la escalera|stairs|La escalera es muy larga.|The stairs are very long.
+el ascensor|elevator|El ascensor está a la derecha.|The elevator is on the right.
+#Clothes
+la ropa|clothes|Compro ropa nueva.|I'm buying new clothes.
+la camisa|shirt|La camisa es blanca.|The shirt is white.
+la camiseta|T-shirt|Quiero una camiseta azul.|I want a blue T-shirt.
+el pantalón|pants|El pantalón es negro.|The pants are black.
+la falda|skirt|La falda es corta.|The skirt is short.
+el vestido|dress|El vestido es rojo.|The dress is red.
+el abrigo|coat|Hace frío; necesito un abrigo.|It's cold; I need a coat.
+la chaqueta|jacket|La chaqueta está en la silla.|The jacket is on the chair.
+el jersey|sweater|El jersey es gris.|The sweater is gray.
+los zapatos|shoes|Los zapatos son nuevos.|The shoes are new.
+el calcetín|sock|Necesito calcetines limpios.|I need clean socks.
+el sombrero|hat|El sombrero es marrón.|The hat is brown.
+las gafas|glasses|Mis gafas están en la mesa.|My glasses are on the table.
+el bolso|bag, purse|El bolso es pequeño.|The bag is small.
+la mochila|backpack|La mochila es azul.|The backpack is blue.
+el cinturón|belt|El cinturón es negro.|The belt is black.
+#Town and places
+la ciudad|city|Madrid es una ciudad grande.|Madrid is a big city.
+el pueblo|town, village|Mi abuela vive en un pueblo pequeño.|My grandmother lives in a small town.
+la calle|street|La calle es larga.|The street is long.
+la plaza|square|El café está en la plaza.|The café is in the square.
+el parque|park|El parque está cerca.|The park is near.
+la tienda|shop|La tienda abre a las diez.|The shop opens at ten.
+el supermercado|supermarket|El supermercado está lejos.|The supermarket is far.
+el mercado|market|El mercado está en el centro.|The market is downtown.
+el banco|bank|El banco cierra a las dos.|The bank closes at two.
+el cine|movie theater|Vamos al cine el sábado.|We go to the movies on Saturday.
+el teatro|theater|El teatro está en la plaza.|The theater is in the square.
+el museo|museum|El museo abre a las diez.|The museum opens at ten.
+la iglesia|church|La iglesia es muy antigua.|The church is very old.
+la biblioteca|library|La biblioteca está cerrada.|The library is closed.
+la escuela|school|La escuela está cerca de casa.|The school is near the house.
+la universidad|university|La universidad es grande.|The university is big.
+el hotel|hotel|El hotel está cerca de la playa.|The hotel is near the beach.
+la estación|station|La estación está lejos.|The station is far.
+el aeropuerto|airport|El aeropuerto está lejos del centro.|The airport is far from the center.
+la oficina|office|La oficina está en el centro.|The office is downtown.
+la playa|beach|La playa está cerca.|The beach is near.
+el campo|countryside|El campo es muy bonito.|The countryside is very pretty.
+la montaña|mountain|La montaña es muy alta.|The mountain is very high.
+el río|river|El río es largo.|The river is long.
+el mar|sea|El mar está cerca.|The sea is near.
+el país|country|España es un país bonito.|Spain is a pretty country.
+el barrio|neighborhood|El barrio es muy bonito.|The neighborhood is very pretty.
+la panadería|bakery|La panadería abre a las ocho.|The bakery opens at eight.
+la oficina de correos|post office|La oficina de correos está cerca de la plaza.|The post office is near the square.
+el edificio|building|El edificio es muy alto.|The building is very tall.
+el puente|bridge|El puente es muy largo.|The bridge is very long.
+el centro|center, downtown|El hotel está en el centro.|The hotel is downtown.
+la esquina|corner|El café está en la esquina.|The café is on the corner.
+el sitio|place, spot|¿Hay un sitio libre?|Is there a free spot?
+#Transport and travel
+el coche|car|El coche es nuevo.|The car is new.
+el autobús|bus|El autobús llega a las ocho.|The bus arrives at eight.
+el tren|train|El tren sale a las nueve.|The train leaves at nine.
+el metro|subway|El metro está cerca.|The subway is near.
+el taxi|taxi|Quiero un taxi, por favor.|I want a taxi, please.
+el avión|airplane|El avión sale a las diez.|The plane leaves at ten.
+la bicicleta|bicycle|La bicicleta es azul.|The bicycle is blue.
+el barco|boat|El barco sale a las once.|The boat leaves at eleven.
+el billete|ticket|Quisiera un billete, por favor.|I'd like a ticket, please.
+el viaje|trip|El viaje es largo.|The trip is long.
+la maleta|suitcase|La maleta es grande.|The suitcase is big.
+el mapa|map|¿Tiene un mapa de la ciudad?|Do you have a map of the city?
+la parada|stop|La parada del autobús está aquí.|The bus stop is here.
+el camino|way, path|Este es el camino a la playa.|This is the way to the beach.
+la carretera|road|La carretera es muy larga.|The road is very long.
+el semáforo|traffic light|El semáforo está en rojo.|The traffic light is red.
+la entrada|entrance|La entrada es por la plaza.|The entrance is through the square.
+la salida|exit|La salida está a la derecha.|The exit is on the right.
+el pasaporte|passport|Tengo el pasaporte aquí.|I have the passport here.
+la dirección|address|¿Cuál es su dirección?|What is your address?
+el equipaje|luggage|El equipaje está en el hotel.|The luggage is at the hotel.
+el vuelo|flight|El vuelo sale a las siete.|The flight leaves at seven.
+#School and work
+el trabajo|work, job|El trabajo es interesante.|The job is interesting.
+la empresa|company|La empresa está en el centro.|The company is downtown.
+el jefe|boss|El jefe habla con el cliente.|The boss talks with the customer.
+el cliente|customer|El cliente quiere la cuenta.|The customer wants the bill.
+el compañero|coworker, classmate|Mi compañero habla inglés.|My coworker speaks English.
+el profesor|male teacher|El profesor habla despacio.|The teacher speaks slowly.
+la profesora|female teacher|La profesora es muy simpática.|The teacher is very nice.
+el estudiante|student|El estudiante lee un libro.|The student reads a book.
+la clase|class|La clase empieza a las nueve.|The class starts at nine.
+el libro|book|Leo un libro en español.|I read a book in Spanish.
+el cuaderno|notebook|El cuaderno está en la mochila.|The notebook is in the backpack.
+el bolígrafo|pen|Necesito un bolígrafo.|I need a pen.
+el lápiz|pencil|El lápiz es amarillo.|The pencil is yellow.
+la pregunta|question|Tengo una pregunta.|I have a question.
+la respuesta|answer|La respuesta es muy fácil.|The answer is very easy.
+el examen|exam|El examen es el lunes.|The exam is on Monday.
+la lección|lesson|La lección es fácil.|The lesson is easy.
+la palabra|word|Esta palabra es nueva.|This word is new.
+la frase|sentence|La frase es corta.|The sentence is short.
+el idioma|language|El español es un idioma bonito.|Spanish is a pretty language.
+el papel|paper|Necesito papel y un bolígrafo.|I need paper and a pen.
+el periódico|newspaper|Leo el periódico en el café.|I read the newspaper at the café.
+la nota|grade|La nota del examen es buena.|The exam grade is good.
+el ejemplo|example|Un ejemplo, por favor.|An example, please.
+el problema|problem|No hay problema.|There is no problem.
+la reunión|meeting|La reunión es a las diez.|The meeting is at ten.
+el correo electrónico|email|Escribo un correo electrónico.|I'm writing an email.
+la tarea|homework|La tarea es fácil.|The homework is easy.
+#Shopping and money
+el dinero|money|No tengo dinero.|I don't have money.
+el precio|price|El precio es muy bajo.|The price is very low.
+la tarjeta|card|Tengo la tarjeta aquí.|I have the card here.
+la moneda|coin|Tengo una moneda de dos euros.|I have a two-euro coin.
+el euro|euro|El café cuesta dos euros.|The coffee costs two euros.
+la compra|shopping|Hago la compra en el mercado.|I do the shopping at the market.
+la oferta|sale, offer|Hoy hay una oferta.|Today there is a sale.
+la caja|cash register|La caja está a la derecha.|The cash register is on the right.
+el recibo|receipt|¿Quiere el recibo?|Do you want the receipt?
+la bolsa|bag|Quisiera una bolsa, por favor.|I'd like a bag, please.
+la talla|size|¿Qué talla es?|What size is it?
+el regalo|gift|Es un regalo para Ana.|It's a gift for Ana.
+el descuento|discount|Hay un descuento del diez por ciento.|There is a ten percent discount.
+el cajero|ATM|El cajero está en la calle.|The ATM is on the street.
+la propina|tip|La propina es para el camarero.|The tip is for the waiter.
+el producto|product|El producto es muy barato.|The product is very cheap.
+la factura|invoice|La factura es de veinte euros.|The invoice is for twenty euros.
+la lista|list|La lista de la compra es larga.|The shopping list is long.
+#Weather and nature
+el tiempo|weather|Hoy hace buen tiempo.|The weather is nice today.
+el sol|sun|Hoy hace sol.|It's sunny today.
+la lluvia|rain|Hay mucha lluvia en abril.|There is a lot of rain in April.
+el viento|wind|Hoy hace mucho viento.|It's very windy today.
+la nube|cloud|Hay muchas nubes.|There are many clouds.
+la nieve|snow|En invierno hay nieve en la montaña.|In winter there is snow in the mountains.
+el calor|heat|Hace mucho calor.|It's very hot.
+el frío|the cold|Hace mucho frío.|It's very cold.
+la temperatura|temperature|La temperatura es de veinte grados.|The temperature is twenty degrees.
+el grado|degree|Hace veinte grados.|It's twenty degrees.
+el cielo|sky|El cielo es azul.|The sky is blue.
+el árbol|tree|El árbol es muy alto.|The tree is very tall.
+la flor|flower|La flor es roja.|The flower is red.
+el animal|animal|El perro es un animal.|The dog is an animal.
+el perro|dog|El perro es negro.|The dog is black.
+el gato|cat|El gato duerme.|The cat sleeps.
+el pájaro|bird|El pájaro canta.|The bird sings.
+la luna|moon|La luna es blanca.|The moon is white.
+la estrella|star|Hay muchas estrellas.|There are many stars.
+el mundo|world|El mundo es grande.|The world is big.
+#Colors
+el color|color|¿Qué color quiere?|What color do you want?
+~blanco / blanca|white|La camisa es blanca.|The shirt is white.
+~negro / negra|black|La taza es negra.|The cup is black.
+~rojo / roja|red|El coche es rojo.|The car is red.
+~verde|green|El árbol es verde.|The tree is green.
+~azul|blue|El cielo es azul.|The sky is blue.
+~amarillo / amarilla|yellow|La flor es amarilla.|The flower is yellow.
+~naranja|orange, the color|La camiseta es naranja.|The T-shirt is orange.
+~gris|gray|El gato es gris.|The cat is gray.
+~marrón|brown|El perro es marrón.|The dog is brown.
+~rosa|pink|La flor es rosa.|The flower is pink.
+~morado / morada|purple|El vestido es morado.|The dress is purple.
+#Numbers
+=cero|zero|Hace cero grados.|It's zero degrees.
+=uno|one|Quiero uno.|I want one.
+=dos|two|Dos cafés, por favor.|Two coffees, please.
+=tres|three|Somos tres.|There are three of us.
+=cuatro|four|Hay cuatro sillas.|There are four chairs.
+=cinco|five|Son las cinco.|It's five o'clock.
+=seis|six|Tengo seis euros.|I have six euros.
+=siete|seven|Son las siete.|It's seven o'clock.
+=ocho|eight|El café abre a las ocho.|The café opens at eight.
+=nueve|nine|La cena es a las nueve.|Dinner is at nine.
+=diez|ten|Cuesta diez euros.|It costs ten euros.
+=once|eleven|Hay once personas.|There are eleven people.
+=doce|twelve|Son las doce.|It's twelve o'clock.
+=trece|thirteen|Tengo trece euros.|I have thirteen euros.
+=catorce|fourteen|Hoy es el catorce.|Today is the fourteenth.
+=quince|fifteen|Son quince euros.|It's fifteen euros.
+=dieciséis|sixteen|Ana tiene dieciséis años.|Ana is sixteen years old.
+=diecisiete|seventeen|Hay diecisiete mesas.|There are seventeen tables.
+=dieciocho|eighteen|Hay dieciocho sillas.|There are eighteen chairs.
+=diecinueve|nineteen|Son diecinueve euros.|It's nineteen euros.
+=veinte|twenty|Cuesta veinte euros.|It costs twenty euros.
+=treinta|thirty|Marta tiene treinta años.|Marta is thirty years old.
+=cuarenta|forty|Pablo tiene cuarenta años.|Pablo is forty years old.
+=cincuenta|fifty|Cuesta cincuenta euros.|It costs fifty euros.
+=sesenta|sixty|Son sesenta euros.|It's sixty euros.
+=setenta|seventy|Son setenta euros.|It's seventy euros.
+=ochenta|eighty|Cuesta ochenta euros.|It costs eighty euros.
+=noventa|ninety|Son noventa euros.|It's ninety euros.
+=cien|one hundred|Cuesta cien euros.|It costs one hundred euros.
+=mil|one thousand|Cuesta mil euros.|It costs one thousand euros.
+#Adjectives
+~grande|big|La casa es grande.|The house is big.
+~pequeño / pequeña|small|El piso es pequeño.|The apartment is small.
+~bueno / buena|good|El café es muy bueno.|The coffee is very good.
+~malo / mala|bad|La comida es mala.|The food is bad.
+~nuevo / nueva|new|Tengo un móvil nuevo.|I have a new phone.
+~viejo / vieja|old|El edificio es muy viejo.|The building is very old.
+~joven|young|Ana es muy joven.|Ana is very young.
+~alto / alta|tall, high|Pablo es muy alto.|Pablo is very tall.
+~bajo / baja|short, low|Marta es baja.|Marta is short.
+~largo / larga|long|La clase es muy larga.|The class is very long.
+~corto / corta|short in length|El viaje es corto.|The trip is short.
+~caliente|hot|El té está caliente.|The tea is hot.
+~frío / fría|cold|La cerveza está fría.|The beer is cold.
+~fácil|easy|El examen es fácil.|The exam is easy.
+~difícil|difficult|La pregunta es difícil.|The question is difficult.
+~rápido / rápida|fast|El tren es rápido.|The train is fast.
+~lento / lenta|slow|El autobús es lento.|The bus is slow.
+~feliz|happy|Ana está muy feliz.|Ana is very happy.
+~contento / contenta|glad, pleased|Estoy muy contento.|I'm very pleased.
+~triste|sad|El niño está triste.|The boy is sad.
+~cansado / cansada|tired|Estoy muy cansado.|I'm very tired.
+~enfermo / enferma|sick|El niño está enfermo.|The boy is sick.
+~ocupado / ocupada|busy|El jefe está ocupado.|The boss is busy.
+~libre|free|La mesa está libre.|The table is free.
+~abierto / abierta|open|La tienda está abierta.|The shop is open.
+~cerrado / cerrada|closed|El banco está cerrado.|The bank is closed.
+~lleno / llena|full|El bar está lleno.|The bar is full.
+~limpio / limpia|clean|La habitación está limpia.|The room is clean.
+~sucio / sucia|dirty|La mesa está sucia.|The table is dirty.
+~bonito / bonita|pretty|La ciudad es muy bonita.|The city is very pretty.
+~guapo / guapa|good-looking|Ana es muy guapa.|Ana is very good-looking.
+~feo / fea|ugly|El edificio es feo.|The building is ugly.
+~simpático / simpática|nice, friendly|El camarero es muy simpático.|The waiter is very nice.
+~amable|kind|La camarera es muy amable.|The waitress is very kind.
+~importante|important|El examen es importante.|The exam is important.
+~interesante|interesting|El libro es interesante.|The book is interesting.
+~divertido / divertida|fun|La fiesta es muy divertida.|The party is a lot of fun.
+~aburrido / aburrida|boring|La película es aburrida.|The movie is boring.
+~barato / barata|cheap|El menú es barato.|The menu is cheap.
+~caro / cara|expensive|El hotel es caro.|The hotel is expensive.
+~tranquilo / tranquila|quiet, calm|El parque es muy tranquilo.|The park is very quiet.
+~antiguo / antigua|old, ancient|El museo es muy antiguo.|The museum is very old.
+#Adverbs and small words
+=bien|well|Marta habla muy bien inglés.|Marta speaks English very well.
+=mal|badly|Hoy duermo mal.|I sleep badly today.
+=mucho|a lot|Trabajo mucho.|I work a lot.
+=poco|a little|Como poco por la noche.|I eat little at night.
+=más|more|Quiero más agua.|I want more water.
+=menos|less|Quiero menos azúcar.|I want less sugar.
+=tampoco|neither, either|Pablo tampoco habla francés.|Pablo doesn't speak French either.
+=demasiado|too, too much|Es demasiado caro.|It's too expensive.
+=despacio|slowly|Habla despacio, por favor.|Speak slowly, please.
+=aquí|here|Ana está aquí.|Ana is here.
+=allí|there|Pablo está allí.|Pablo is there.
+=cerca|nearby|Ana vive cerca.|Ana lives nearby.
+=lejos|far|La playa está lejos.|The beach is far.
+=solo|only|Solo quiero agua.|I only want water.
+=casi|almost|Son casi las ocho.|It's almost eight o'clock.
+=quizás|maybe|Quizás voy al cine.|Maybe I'll go to the movies.
+=sí|yes|Sí, quiero un café.|Yes, I want a coffee.
+=no|no|No, gracias.|No, thank you.
+=claro|of course|Claro, ahora mismo.|Of course, right away.
+=bastante|quite|Es bastante caro.|It's quite expensive.
+=otra vez|again|Otra vez, por favor.|Again, please.
+=todo|everything|Todo está bien.|Everything is fine.
+=nada|nothing|No quiero nada.|I don't want anything.
+=algo|something|Quiero algo frío.|I want something cold.
+#Prepositions and pronouns
+=yo|I|Yo quiero un café.|I want a coffee.
+=tú|you, informal|Tú eres muy amable.|You are very kind.
+=él|he|Él es mi amigo.|He is my friend.
+=ella|she|Ella es mi amiga.|She is my friend.
+=usted|you, formal|Usted es muy amable.|You are very kind.
+=nosotros|we|Nosotros vivimos aquí.|We live here.
+=vosotros|you all, informal|Vosotros habláis muy bien.|You all speak very well.
+=ellos|they, masculine|Ellos son mis amigos.|They are my friends.
+=ellas|they, feminine|Ellas hablan español.|They speak Spanish.
+=ustedes|you all, formal|Ustedes son muy amables.|You all are very kind.
+=mi|my|Mi amigo es simpático.|My friend is nice.
+=tu|your, informal|Tu café está aquí.|Your coffee is here.
+=su|his, her, your formal|Su nombre es Ana.|Her name is Ana.
+=nuestro|our|Nuestro piso es pequeño.|Our apartment is small.
+=este|this|Este café está muy bueno.|This coffee is very good.
+=ese|that|Ese libro es nuevo.|That book is new.
+=a|to, at|Voy a casa.|I'm going home.
+=de|of, from|Ana es de Madrid.|Ana is from Madrid.
+=en|in, on|Estoy en el café.|I'm in the café.
+=con|with|Voy con Ana.|I'm going with Ana.
+=sin|without|Un té sin leche, por favor.|A tea without milk, please.
+=para|for|Este café es para Ana.|This coffee is for Ana.
+=por|for, because of|Gracias por el café.|Thank you for the coffee.
+=sobre|on, about|El libro está sobre la mesa.|The book is on the table.
+=entre|between|El banco está entre el café y la tienda.|The bank is between the café and the shop.
+=cerca de|near to|El hotel está cerca de la playa.|The hotel is near the beach.
+=delante de|in front of|El coche está delante del hotel.|The car is in front of the hotel.
+=detrás de|behind|El jardín está detrás de la casa.|The garden is behind the house.
+=al lado de|next to|El banco está al lado del café.|The bank is next to the café.
+=encima de|on top of|El libro está encima de la mesa.|The book is on top of the table.
+=debajo de|under|El gato está debajo de la silla.|The cat is under the chair.
+=a la izquierda|on the left|El baño está a la izquierda.|The bathroom is on the left.
+=a la derecha|on the right|La puerta está a la derecha.|The door is on the right.
+=todo recto|straight ahead|Siga todo recto.|Go straight ahead.
+=y|and|Quiero un café y una tostada.|I want a coffee and a piece of toast.
+=o|or|¿Café o té?|Coffee or tea?
+#Verbs
+@ser|to be, for who or what something is|Ana es muy simpática.|Ana is very nice.|soy,eres,es,somos,sois,son
+@estar|to be, for where or how something is|El café está caliente.|The coffee is hot.|estoy,estás,está,estamos,estáis,están
+@tener|to have|Ana tiene un perro.|Ana has a dog.|tengo,tienes,tiene,tenemos,tenéis,tienen
+@ir|to go|Voy al café.|I go to the café.|voy,vas,va,vamos,vais,van
+@venir|to come|Pablo viene a las ocho.|Pablo comes at eight.|vengo,vienes,viene,venimos,venís,vienen
+@hacer|to do, to make|Hago la compra.|I do the shopping.|hago,haces,hace,hacemos,hacéis,hacen
+@decir|to say, to tell|Ana dice que sí.|Ana says yes.|digo,dices,dice,decimos,decís,dicen
+@poder|to be able to, can|Ana puede venir.|Ana can come.|puedo,puedes,puede,podemos,podéis,pueden
+@querer|to want|Pablo quiere un zumo.|Pablo wants a juice.|quiero,quieres,quiere,queremos,queréis,quieren
+@saber|to know a fact, to know how to|Ana sabe hablar inglés.|Ana knows how to speak English.|sé,sabes,sabe,sabemos,sabéis,saben
+@conocer|to know a person or place|Conozco a Pablo.|I know Pablo.|conozco,conoces,conoce,conocemos,conocéis,conocen
+@ver|to see|Veo el mar.|I see the sea.|veo,ves,ve,vemos,veis,ven
+@dar|to give|Doy un regalo a Ana.|I give Ana a gift.|doy,das,da,damos,dais,dan
+@poner|to put|Pongo el libro en la mesa.|I put the book on the table.|pongo,pones,pone,ponemos,ponéis,ponen
+@salir|to go out, to leave|Salgo a las ocho.|I leave at eight.|salgo,sales,sale,salimos,salís,salen
+@llegar|to arrive|El tren llega a las nueve.|The train arrives at nine.
+@llevar|to carry, to wear|Ana lleva un vestido rojo.|Ana is wearing a red dress.
+@traer|to bring|La camarera trae la cuenta.|The waitress brings the bill.|traigo,traes,trae,traemos,traéis,traen
+@hablar|to speak|Pablo habla muy bien español.|Pablo speaks Spanish very well.
+@comer|to eat|Como a las dos.|I eat at two.
+@beber|to drink|Bebo agua.|I drink water.
+@vivir|to live|Ana vive en Madrid.|Ana lives in Madrid.
+@trabajar|to work|Pablo trabaja en un banco.|Pablo works in a bank.
+@estudiar|to study|Marta estudia español.|Marta studies Spanish.
+@aprender|to learn|Aprendo español.|I learn Spanish.
+@entender|to understand|Ana entiende español.|Ana understands Spanish.|entiendo,entiendes,entiende,entendemos,entendéis,entienden
+@necesitar|to need|Necesito agua.|I need water.
+@comprar|to buy|Compro pan.|I buy bread.
+@pagar|to pay|Pago con tarjeta.|I pay by card.
+@abrir|to open|El banco abre a las nueve.|The bank opens at nine.
+@cerrar|to close|El banco cierra a las dos.|The bank closes at two.|cierro,cierras,cierra,cerramos,cerráis,cierran
+@empezar|to begin, to start|La clase empieza a las nueve.|The class starts at nine.|empiezo,empiezas,empieza,empezamos,empezáis,empiezan
+@terminar|to finish|La clase termina a las once.|The class ends at eleven.
+@esperar|to wait|Espero el autobús.|I wait for the bus.
+@mirar|to look at|Miro el mapa.|I look at the map.
+@escuchar|to listen|Escucho música.|I listen to music.
+@leer|to read|Leo el periódico.|I read the newspaper.
+@escribir|to write|Escribo un correo.|I write an email.
+@dormir|to sleep|El niño duerme.|The boy sleeps.|duermo,duermes,duerme,dormimos,dormís,duermen
+@levantarse|to get up|Me levanto a las siete.|I get up at seven.
+@llamarse|to be called|Me llamo Ana.|My name is Ana.
+@llamar|to call|Llamo a Pablo.|I call Pablo.
+@viajar|to travel|Viajo en tren.|I travel by train.
+@visitar|to visit|Visito el museo.|I visit the museum.
+@preguntar|to ask|Pregunto la hora.|I ask the time.
+@responder|to answer|Respondo la pregunta.|I answer the question.
+@ayudar|to help|¿Me puede ayudar?|Can you help me?
+@buscar|to look for|Busco la estación.|I'm looking for the station.
+@encontrar|to find|Encuentro la llave.|I find the key.|encuentro,encuentras,encuentra,encontramos,encontráis,encuentran
+@perder|to lose, to miss|Pierdo el autobús.|I miss the bus.|pierdo,pierdes,pierde,perdemos,perdéis,pierden
+@pensar|to think|Pienso en Ana.|I'm thinking about Ana.|pienso,piensas,piensa,pensamos,pensáis,piensan
+@creer|to believe, to think|Creo que sí.|I think so.
+@gustar|to like, to be pleasing|Me gusta el café.|I like coffee.|me gusta,te gusta,le gusta,nos gusta,os gusta,les gusta
+@preferir|to prefer|Prefiero el té.|I prefer tea.|prefiero,prefieres,prefiere,preferimos,preferís,prefieren
+@volver|to return, to come back|Vuelvo a casa.|I go back home.|vuelvo,vuelves,vuelve,volvemos,volvéis,vuelven
+@caminar|to walk|Camino por la calle.|I walk along the street.
+@correr|to run|Corro en el parque.|I run in the park.
+@jugar|to play|Pablo juega al fútbol.|Pablo plays soccer.|juego,juegas,juega,jugamos,jugáis,juegan
+@cantar|to sing|Ana canta muy bien.|Ana sings very well.
+@bailar|to dance|Bailo con Ana.|I dance with Ana.
+@cocinar|to cook|Cocino en casa.|I cook at home.
+@preparar|to prepare|Preparo el desayuno.|I prepare breakfast.
+@lavar|to wash|Lavo la ropa.|I wash the clothes.
+@limpiar|to clean|Limpio la cocina.|I clean the kitchen.
+@usar|to use|Uso el móvil.|I use the phone.
+@tomar|to take, to have a drink|Ana toma un té.|Ana has a tea.
+@pedir|to order, to ask for|Pido un cortado.|I order a cortado.|pido,pides,pide,pedimos,pedís,piden
+@repetir|to repeat|Repito la frase.|I repeat the sentence.|repito,repites,repite,repetimos,repetís,repiten
+@olvidar|to forget|Olvido la llave.|I forget the key.
+@recordar|to remember|Recuerdo tu nombre.|I remember your name.|recuerdo,recuerdas,recuerda,recordamos,recordáis,recuerdan
+@cambiar|to change|Cambio dinero en el banco.|I change money at the bank.
+@costar|to cost|El café cuesta dos euros.|The coffee costs two euros.|cuesto,cuestas,cuesta,costamos,costáis,cuestan
+@descansar|to rest|Descanso en el parque.|I rest in the park.
+@conducir|to drive|Pablo conduce un coche.|Pablo drives a car.|conduzco,conduces,conduce,conducimos,conducís,conducen
+@nadar|to swim|Nado en el mar.|I swim in the sea.
+@sentarse|to sit down|Me siento en la silla.|I sit on the chair.|me siento,te sientas,se sienta,nos sentamos,os sentáis,se sientan
+@vender|to sell|La tienda vende pan.|The shop sells bread.
+@compartir|to share|Comparto un bocadillo con Ana.|I share a sandwich with Ana.
+#Free time and personal info
+la música|music|Escucho música en casa.|I listen to music at home.
+el deporte|sport|Me gusta el deporte.|I like sports.
+el fútbol|soccer|El fútbol es muy popular en España.|Soccer is very popular in Spain.
+la película|movie|La película empieza a las ocho.|The movie starts at eight.
+el juego|game|El juego es muy divertido.|The game is a lot of fun.
+la fiesta|party|La fiesta es el sábado.|The party is on Saturday.
+el baile|dance|El baile empieza a las diez.|The dance starts at ten.
+la foto|photo|Hago una foto de la plaza.|I take a photo of the square.
+las vacaciones|vacation|Las vacaciones son en agosto.|The vacation is in August.
+el tiempo libre|free time|En mi tiempo libre leo.|In my free time I read.
+la vida|life|La vida es bonita.|Life is beautiful.
+el nombre|name|¿Cuál es su nombre?|What is your name?
+el apellido|last name|Su apellido es García.|Her last name is García.
+la edad|age|¿Qué edad tiene?|How old are you?
+el cumpleaños|birthday|El cumpleaños de Ana es en mayo.|Ana's birthday is in May.
+el número de teléfono|phone number|¿Cuál es su número de teléfono?|What is your phone number?
+la nacionalidad|nationality|¿Cuál es su nacionalidad?|What is your nationality?
+la idea|idea|Es una buena idea.|That's a good idea.
+la canción|song|La canción es muy bonita.|The song is very pretty.
+el concierto|concert|El concierto es en la plaza.|The concert is in the square.
+`;
+/*VOCAB_END*/
+const PRES_END={ar:['o','as','a','amos','áis','an'],er:['o','es','e','emos','éis','en'],ir:['o','es','e','imos','ís','en']};
+const REFLP=['me','te','se','nos','os','se'];
+function presentForms(inf){
+  const refl=inf.endsWith('se'), b=refl?inf.slice(0,-2):inf, st=b.slice(0,-2), k=b.slice(-2);
+  return PRES_END[k].map((e,i)=>(refl?REFLP[i]+' ':'')+st+e);
+}
+(function(){
+  let cat='', id=1000;
+  VOCAB_SRC.split('\n').forEach(line=>{
+    const L=line.trim(); if(!L)return;
+    if(L[0]==='#'){cat=L.slice(1).trim();return}
+    const kind='@~='.includes(L[0])?L[0]:'n', f=(kind==='n'?L:L.slice(1)).split('|');
+    const card=c(++id,'S',f[0].trim(),f[1].trim(),cat);
+    card.sent=[f[2].trim(),f[3].trim()]; card.kind=kind;
+    if(kind==='@')card.verb={inf:f[0].trim(),en:f[1].trim(),tense:'present',forms:f[4]?f[4].split(',').map(s=>s.trim()):presentForms(f[0].trim())};
+    CARDS.push(card);
+  });
+})();
+const BY_ID=Object.fromEntries(CARDS.map(x=>[x.id,x]));
+
+/* One sentence per card (cards with `ex` use their first example). */
+const SENT={
+ 1:['Buenos días, ¿qué tal?','Good morning, how are you?'],
+ 2:['Buenas tardes, una mesa para dos, por favor.','Good afternoon, a table for two, please.'],
+ 3:['Un café, por favor. Gracias.','A coffee, please. Thank you.'],
+ 4:['Perdone, ¿tiene una servilleta?','Excuse me, do you have a napkin?'],
+ 5:['Gracias, hasta luego.','Thank you, see you later.'],
+ 6:['—Gracias. —De nada.','"Thank you." "You\'re welcome."'],
+ 7:['Quisiera una cuchara, por favor.','I\'d like a spoon, please.'],
+ 8:['¿Me puede traer un tenedor?','Can you bring me a fork?'],
+ 9:['¿Tiene un cuchillo, por favor?','Do you have a knife, please?'],
+ 10:['Quisiera una servilleta, por favor.','I\'d like a napkin, please.'],
+ 11:['Una taza de café, por favor.','A cup of coffee, please.'],
+ 12:['Un vaso de agua, por favor.','A glass of water, please.'],
+ 13:['¿Me puede traer un plato?','Can you bring me a plate?'],
+ 14:['¿Tiene una pajita?','Do you have a straw?'],
+ 20:['Quisiera una tostada con tomate.','I\'d like toast with tomato.'],
+ 21:['Un bocadillo y un café, por favor.','A sandwich and a coffee, please.'],
+ 22:['¿Me puede traer la carta, por favor?','Can you bring me the menu, please?'],
+ 23:['¿Hay una mesa libre?','Is there a free table?'],
+ 24:['Un café con leche de avena, por favor.','A coffee with oat milk, please.'],
+ 25:['Un café sin azúcar, por favor.','A coffee without sugar, please.'],
+ 26:['Un café con hielo, por favor.','A coffee with ice, please.'],
+ 27:['Un café para llevar, por favor.','A coffee to take away, please.'],
+ 28:['Un café para tomar aquí, por favor.','A coffee to have here, please.'],
+ 29:['—¿Qué le pongo? —Un cortado, por favor.','"What can I get you?" "A cortado, please."'],
+ 30:['—¿Algo más? —No, gracias.','"Anything else?" "No, thank you."'],
+ 31:['—¿Para tomar aquí o para llevar? —Para llevar.','"Here or to go?" "To go."'],
+ 32:['—¿Me pone un café? —Ahora mismo.','"Could I get a coffee?" "Right away."'],
+ 33:['Aquí tiene el café.','Here is your coffee.'],
+ 34:['Un momento, por favor.','One moment, please.'],
+ 35:['¿Cuánto es el café con leche?','How much is the coffee with milk?'],
+ 36:['Perdone, la cuenta, por favor.','Excuse me, the bill, please.'],
+ 37:['Perdone, ¿puedo pagar con tarjeta?','Excuse me, can I pay by card?'],
+ 38:['—¿Cuánto es? —Son dos euros con cincuenta.','"How much is it?" "That\'s €2.50."'],
+ 39:['Pago en efectivo.','I\'m paying in cash.'],
+ 40:['Aquí tiene el cambio.','Here is your change.'],
+ 41:['Perdone, no entiendo.','Sorry, I don\'t understand.'],
+ 42:['Más despacio, por favor. No entiendo.','Slower, please. I don\'t understand.'],
+ 43:['Perdone, ¿puede repetir?','Excuse me, can you repeat?'],
+ 44:['¿Cómo se dice "cup" en español?','How do you say "cup" in Spanish?'],
+ 45:['Hola, estoy aprendiendo español.','Hello, I\'m learning Spanish.'],
+ 46:['Quiero un café con leche.','I want a coffee with milk.'],
+ 47:['Voy a tomar un café con leche.','I\'m going to have a coffee with milk.'],
+ 48:['Ya he pedido un café, gracias.','I\'ve already ordered a coffee, thank you.'],
+ 49:['Pedí un cortado y una tostada.','I ordered a cortado and a piece of toast.'],
+ 50:['¿Puedo sentarme aquí, por favor?','Can I sit here, please?'],
+ 51:['El lunes voy al café.','On Monday I go to the café.'],
+ 52:['El martes tomo un cortado.','On Tuesday I have a cortado.'],
+ 53:['El miércoles voy al supermercado.','On Wednesday I go to the supermarket.'],
+ 54:['El jueves quiero un café con leche.','On Thursday I want a coffee with milk.'],
+ 55:['El viernes voy a tomar una caña.','On Friday I\'m going to have a small beer.'],
+ 56:['El sábado voy a comer un bocadillo.','On Saturday I\'m going to eat a sandwich.'],
+ 57:['El domingo no hay mesa libre.','On Sunday there is no free table.'],
+ 58:['Hoy es el uno de enero.','Today is January 1.'],
+ 59:['Hoy es el catorce de febrero.','Today is February 14.'],
+ 60:['Hoy es el ocho de marzo.','Today is March 8.'],
+ 61:['Hoy es el veintitrés de abril.','Today is April 23.'],
+ 62:['Hoy es el uno de mayo.','Today is May 1.'],
+ 63:['Hoy es el veinticuatro de junio.','Today is June 24.'],
+ 64:['Hoy es el dieciséis de julio.','Today is July 16.'],
+ 65:['Hoy es el quince de agosto.','Today is August 15.'],
+ 66:['Hoy es el diez de septiembre.','Today is September 10.'],
+ 67:['Hoy es el doce de octubre.','Today is October 12.'],
+ 68:['Hoy es el veinticuatro de noviembre.','Today is November 24.'],
+ 69:['Hoy es el veinticinco de diciembre.','Today is December 25.'],
+ 70:['En primavera hace buen tiempo.','In spring the weather is nice.'],
+ 71:['En verano hace mucho calor.','In summer it is very hot.'],
+ 72:['En otoño hace fresco.','In autumn it is cool.'],
+ 73:['En invierno hace frío.','In winter it is cold.'],
+ 74:['Hoy quiero un café.','Today I want a coffee.'],
+ 75:['Mañana voy al café.','Tomorrow I\'m going to the café.'],
+ 76:['Ayer comí aquí.','Yesterday I ate here.'],
+ 77:['Ahora quiero la cuenta.','Now I want the bill.'],
+ 78:['Por la mañana tomo un café.','In the morning I have a coffee.'],
+ 79:['Por la tarde tomo un cortado.','In the afternoon I have a cortado.'],
+ 80:['Por la noche no tomo café.','At night I don\'t have coffee.'],
+ 81:['Al mediodía quiero un bocadillo.','At noon I want a sandwich.'],
+ 82:['A medianoche no hay mesa libre.','At midnight there is no free table.'],
+ 83:['Hoy es un buen día.','Today is a good day.'],
+ 84:['Esta semana voy al café.','This week I\'m going to the café.'],
+ 85:['Este fin de semana quiero un café.','This weekend I want a coffee.'],
+ 86:['Este mes voy al café.','This month I\'m going to the café.'],
+ 87:['Este año aprendo español.','This year I\'m learning Spanish.'],
+ 88:['Estoy aquí una hora.','I\'m here for an hour.'],
+ 89:['Un minuto, por favor.','One minute, please.'],
+ 90:['Todos los días tomo un café.','Every day I have a coffee.'],
+ 91:['Voy al café una vez a la semana.','I go to the café once a week.'],
+ 92:['Perdone, ¿qué hora es?','Excuse me, what time is it?'],
+ 93:['—¿Qué hora es? —Es la una.','"What time is it?" "It\'s one o\'clock."'],
+ 94:['—¿Qué hora es? —Son las dos.','"What time is it?" "It\'s two o\'clock."'],
+ 95:['—¿Qué hora es? —Son las tres y media.','"What time is it?" "It\'s half past three."'],
+ 96:['—¿Qué hora es? —Son las cuatro y cuarto.','"What time is it?" "It\'s a quarter past four."'],
+ 97:['—¿Qué hora es? —Son las cinco menos cuarto.','"What time is it?" "It\'s a quarter to five."'],
+ 98:['—¿Qué hora es? —Son las seis y diez.','"What time is it?" "It\'s ten past six."'],
+ 99:['—¿Qué hora es? —Son las siete menos cinco.','"What time is it?" "It\'s five to seven."'],
+ 100:['Perdone, ¿a qué hora abre el café?','Excuse me, what time does the café open?'],
+ 101:['Perdone, ¿a qué hora cierra el café?','Excuse me, what time does the café close?'],
+ 102:['—¿A qué hora abre? —A las ocho.','"What time does it open?" "At eight."'],
+ 103:['Abre a las ocho de la mañana.','It opens at eight in the morning.'],
+ 104:['Es temprano para comer.','It\'s early to eat.'],
+ 105:['Es tarde. La cuenta, por favor.','It\'s late. The bill, please.'],
+ 106:['El café abre a las 8:00 y cierra a las 22:00.','The café opens at 8:00 and closes at 22:00 (10pm).'],
+ 107:['—¿Qué día es hoy? —Hoy es lunes.','"What day is it today?" "Today is Monday."'],
+ 108:['Hoy es lunes y quiero un café.','Today is Monday and I want a coffee.'],
+ 109:['Perdone, ¿qué fecha es hoy?','Excuse me, what\'s the date today?'],
+ 110:['Hoy es el veinticuatro de noviembre de dos mil veintiséis.','Today is November 24, 2026.'],
+ 111:['¿Cuándo abre el café?','When does the café open?'],
+ 112:['La fecha es 24/11/2026.','The date is 24/11/2026 (November 24, 2026).'],
+ 113:['¿Qué hay para comer?','What is there to eat?'],
+ 114:['¿Quién es el camarero?','Who is the waiter?'],
+ 115:['¿Cómo está usted?','How are you?'],
+ 116:['¿Dónde está la mesa libre?','Where is the free table?'],
+ 117:['¿Por qué está frío el café?','Why is the coffee cold?'],
+ 118:['—¿Por qué? —Porque quiero un café.','"Why?" "Because I want a coffee."'],
+ 119:['¿Cuánta leche quiere?','How much milk do you want?'],
+ 120:['¿Cuántos cafés quiere?','How many coffees do you want?'],
+ 121:['¿Cuál quiere, el pequeño o el grande?','Which one do you want, the small or the big?'],
+ 122:['¿De dónde es usted?','Where are you from?'],
+ 123:['¿Adónde va?','Where are you going?'],
+ 124:['¿Con quién va al café?','Who are you going to the café with?'],
+ 125:['Anteayer comí aquí.','The day before yesterday I ate here.'],
+ 126:['Pasado mañana voy al café.','The day after tomorrow I\'m going to the café.'],
+ 127:['Esta mañana he tomado un café.','This morning I had a coffee.'],
+ 128:['Esta tarde voy a tomar un cortado.','This afternoon I\'m going to have a cortado.'],
+ 129:['Esta noche no quiero café.','Tonight I don\'t want coffee.'],
+ 130:['Anoche no tomé café.','Last night I didn\'t have coffee.'],
+ 131:['La semana pasada comí aquí.','Last week I ate here.'],
+ 132:['La semana que viene quiero una mesa.','Next week I want a table.'],
+ 133:['El mes pasado aprendí mucho.','Last month I learned a lot.'],
+ 134:['El mes que viene voy a hablar más español.','Next month I\'m going to speak more Spanish.'],
+ 135:['El año pasado comí aquí.','Last year I ate here.'],
+ 136:['El año que viene voy a hablar español.','Next year I\'m going to speak Spanish.'],
+ 137:['El lunes pasado pedí un cortado.','Last Monday I ordered a cortado.'],
+ 138:['El lunes que viene voy a pedir una mesa.','Next Monday I\'m going to ask for a table.'],
+ 139:['Entre semana tomo un café por la mañana.','On weekdays I have a coffee in the morning.'],
+ 140:['Los lunes tomo un cortado.','On Mondays I have a cortado.'],
+ 141:['Antes de comer quiero un café.','Before eating I want a coffee.'],
+ 142:['Después de comer quiero la cuenta.','After eating I want the bill.'],
+ 143:['Pago luego.','I\'ll pay later.'],
+ 144:['Hasta pronto.','See you soon.'],
+ 145:['Todavía no he pedido.','I haven\'t ordered yet.'],
+ 146:['Siempre tomo café con leche.','I always have coffee with milk.'],
+ 147:['Nunca tomo café con azúcar.','I never have coffee with sugar.'],
+ 148:['A veces tomo un cortado.','Sometimes I have a cortado.'],
+ 149:['Hace dos días comí aquí.','Two days ago I ate here.'],
+ 150:['Dentro de una hora voy a comer.','In an hour I\'m going to eat.'],
+ 151:['Estoy aquí hasta las ocho.','I\'m here until eight.'],
+ 152:['Estoy aquí desde las ocho.','I\'ve been here since eight.'],
+};
+const PRON=['yo','tú','él / ella / usted','nosotros','vosotros','ellos / ellas / ustedes'];
+const V=(inf,en,tense,forms)=>({inf,en,tense,forms});
+const QUERER=V('querer','to want','present',['quiero','quieres','quiere','queremos','queréis','quieren']);
+const PODER=V('poder','to be able to','present',['puedo','puedes','puede','podemos','podéis','pueden']);
+const VERB={
+ 15:V('querer','to want','polite "I\'d like" (imperfect subjunctive)',['quisiera','quisieras','quisiera','quisiéramos','quisierais','quisieran']),
+ 16:V('poner','to put, to serve','present',['pongo','pones','pone','ponemos','ponéis','ponen']),
+ 17:V('tener','to have','present',['tengo','tienes','tiene','tenemos','tenéis','tienen']),
+ 19:PODER, 46:QUERER, 50:PODER,
+ 47:V('ir','to go','present (ir a + infinitive = near future)',['voy','vas','va','vamos','vais','van']),
+ 48:V('pedir','to order, to ask for','perfect (haber + pedido)',['he pedido','has pedido','ha pedido','hemos pedido','habéis pedido','han pedido']),
+ 49:V('pedir','to order, to ask for','simple past',['pedí','pediste','pidió','pedimos','pedisteis','pidieron']),
+};
+const sentOf=x=>x.sent||(x.ex?x.ex[0]:SENT[x.id]);
+
+/* ---------- Helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const splitNote=s=>{const m=s.match(/^(.*?)\s*\((.*)\)\s*$/);return m?[m[1],m[2]]:[s,''];};
+
+/* ---------- Speech (Spain Spanish voice) ---------- */
+function speak(text){
+  if(!('speechSynthesis' in window))return;
+  const t=text.replace(/…|_+/g,'').replace(/\//g,',').trim();
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(t);u.lang='es-ES';
+  const vs=speechSynthesis.getVoices().filter(v=>/^es/i.test(v.lang));
+  const v=vs.find(v=>/^es[-_]ES/i.test(v.lang))||vs[0];if(v){u.voice=v;u.lang=v.lang}
+  u.rate=0.85;speechSynthesis.speak(u);
+}
+const spoken=c=>c.ex?c.ex[0][0]:c.es;
+let AUTO=false;try{AUTO=localStorage.getItem('cafe-auto')==='1'}catch(e){}
+
+/* ---------- State ---------- */
+/* ---------- Conjugation: the three regular verb types, one example each ---------- */
+/* A form is a list of [text,bold] pieces: the ending (or helper word) is bold. */
+const TYPES={
+  ar:{ex:'hablar',en:'to speak',part:'ado',pres:['o','as','a','amos','áis','an'],pret:['é','aste','ó','amos','asteis','aron'],imp:['aba','abas','aba','ábamos','abais','aban']},
+  er:{ex:'comer',en:'to eat',part:'ido',pres:['o','es','e','emos','éis','en'],pret:['í','iste','ió','imos','isteis','ieron'],imp:['ía','ías','ía','íamos','íais','ían']},
+  ir:{ex:'vivir',en:'to live',part:'ido',pres:['o','es','e','imos','ís','en'],pret:['í','iste','ió','imos','isteis','ieron'],imp:['ía','ías','ía','íamos','íais','ían']},
+};
+const IR_A=['voy a','vas a','va a','vamos a','vais a','van a'];
+const HABER=['he','has','ha','hemos','habéis','han'];
+const FUT=['é','ás','á','emos','éis','án'];
+/* One simple sentence per tense, in tense order. */
+const EXS={
+  ar:[['Hablo un poco de español.','I speak a little Spanish.'],
+      ['Voy a hablar con el camarero.','I\'m going to talk to the waiter.'],
+      ['Ya he hablado con el camarero.','I\'ve already talked to the waiter.'],
+      ['Ayer hablé con el camarero.','Yesterday I talked to the waiter.'],
+      ['Antes hablaba muy poco español.','I used to speak very little Spanish.'],
+      ['Mañana hablaré español en el café.','Tomorrow I will speak Spanish at the café.']],
+  er:[['Como una tostada con tomate.','I eat toast with tomato.'],
+      ['Voy a comer un bocadillo.','I\'m going to eat a sandwich.'],
+      ['Ya he comido, gracias.','I\'ve already eaten, thank you.'],
+      ['Ayer comí en el café.','Yesterday I ate at the café.'],
+      ['Antes comía aquí todos los días.','I used to eat here every day.'],
+      ['Mañana comeré una tostada.','Tomorrow I will eat toast.']],
+  ir:[['Vivo en España.','I live in Spain.'],
+      ['Voy a vivir cerca del café.','I\'m going to live near the café.'],
+      ['Mi amigo ha vivido en España.','My friend has lived in Spain.'],
+      ['Ella vivió en Francia.','She lived in France.'],
+      ['Antes vivía en un pueblo.','I used to live in a village.'],
+      ['Un día viviré cerca del mar.','One day I will live near the sea.']],
+};
+function conjType(k){
+  const d=TYPES[k], inf=d.ex, stem=inf.slice(0,-2);
+  const ends=es=>es.map(e=>[[stem,0],[e,1]]);
+  return {id:k,label:'-'+k,sub:inf,title:'-'+k+' verbs',note:inf+', '+d.en,tenses:[
+    {name:'Present',forms:ends(d.pres)},
+    {name:'Near future',forms:IR_A.map(f=>[[f+' ',1],[inf,0]])},
+    {name:'Present perfect',forms:HABER.map(f=>[[f+' ',1],[stem,0],[d.part,1]])},
+    {name:'Simple past',forms:ends(d.pret)},
+    {name:'Imperfect',forms:ends(d.imp)},
+    {name:'Future',forms:FUT.map(e=>[[inf,0],[e,1]])},
+  ].map((te,i)=>({...te,ex:EXS[k][i]}))};
+}
+const CONJ=['ar','er','ir'].map(conjType);
+/* ---------- Adjectives and adverbs (reference only) ---------- */
+const AFORMS=['masculine singular','feminine singular','masculine plural','feminine plural'];
+const ADJ=[
+ {id:'o',label:'-o / -a',sub:'bueno',title:'Adjectives ending in -o',words:[
+   {w:'bueno',en:'good',f:['bueno','buena','buenos','buenas'],ex:[['El café es bueno.','The coffee is good.'],['Las tostadas son buenas.','The toasts are good.']]},
+   {w:'pequeño',en:'small',f:['pequeño','pequeña','pequeños','pequeñas'],ex:[['Quisiera un café pequeño.','I\'d like a small coffee.'],['Las tazas son pequeñas.','The cups are small.']]},
+   {w:'frío',en:'cold',f:['frío','fría','fríos','frías'],ex:[['La leche está fría.','The milk is cold.'],['Los cafés están fríos.','The coffees are cold.']]},
+ ]},
+ {id:'e',label:'-e',sub:'grande',title:'Adjectives ending in -e',words:[
+   {w:'grande',en:'big',f:['grande','grande','grandes','grandes'],ex:[['La taza es grande.','The cup is big.'],['Los bocadillos son grandes.','The sandwiches are big.']]},
+   {w:'caliente',en:'hot',f:['caliente','caliente','calientes','calientes'],ex:[['El café está caliente.','The coffee is hot.'],['Las tostadas están calientes.','The toasts are hot.']]},
+ ]},
+ {id:'consonant',label:'Consonant',sub:'fácil',title:'Adjectives ending in a consonant',words:[
+   {w:'fácil',en:'easy',f:['fácil','fácil','fáciles','fáciles'],ex:[['La carta es fácil.','The menu is easy.'],['Las frases son fáciles.','The sentences are easy.']]},
+   {w:'azul',en:'blue',f:['azul','azul','azules','azules'],ex:[['La taza es azul.','The cup is blue.'],['Los vasos son azules.','The glasses are blue.']]},
+ ]},
+];
+const ADV=[
+ {id:'time',label:'Time',sub:'ahora',title:'Adverbs of time',words:[
+   {w:'ahora',en:'now',ex:['Quiero un café ahora.','I want a coffee now.']},
+   {w:'hoy',en:'today',ex:['Hoy quiero un cortado.','Today I want a cortado.']},
+   {w:'mañana',en:'tomorrow',ex:['Mañana voy al café.','Tomorrow I\'m going to the café.']},
+   {w:'siempre',en:'always',ex:['Siempre tomo café con leche.','I always have coffee with milk.']},
+   {w:'nunca',en:'never',ex:['Nunca tomo café con azúcar.','I never have coffee with sugar.']},
+   {w:'ya',en:'already',ex:['Ya he pedido.','I\'ve already ordered.']},
+ ]},
+ {id:'place',label:'Place',sub:'aquí',title:'Adverbs of place',words:[
+   {w:'aquí',en:'here',ex:['¿Puedo sentarme aquí?','Can I sit here?']},
+   {w:'allí',en:'there',ex:['La mesa libre está allí.','The free table is over there.']},
+   {w:'cerca',en:'near',ex:['El café está cerca.','The café is near.']},
+   {w:'lejos',en:'far',ex:['El supermercado está lejos.','The supermarket is far.']},
+   {w:'dentro',en:'inside',ex:['Hay una mesa dentro.','There is a table inside.']},
+   {w:'fuera',en:'outside',ex:['Hay una mesa fuera.','There is a table outside.']},
+ ]},
+ {id:'manner',label:'Manner',sub:'bien',title:'Adverbs of manner',words:[
+   {w:'bien',en:'well',ex:['Entiendo bien.','I understand well.']},
+   {w:'mal',en:'badly',ex:['Hablo mal español.','I speak Spanish badly.']},
+   {w:'despacio',en:'slowly',ex:['¿Puede hablar despacio?','Can you speak slowly?']},
+   {w:'rápido',en:'quickly',ex:['El camarero habla rápido.','The waiter speaks quickly.']},
+   {w:'normalmente',en:'normally',ex:['Normalmente tomo un café.','I normally have a coffee.']},
+ ]},
+ {id:'quantity',label:'Quantity',sub:'muy',title:'Adverbs of quantity',words:[
+   {w:'muy',en:'very',ex:['El café está muy caliente.','The coffee is very hot.']},
+   {w:'mucho',en:'a lot',ex:['Bebo mucho café.','I drink a lot of coffee.']},
+   {w:'poco',en:'a little',ex:['Hablo un poco de español.','I speak a little Spanish.']},
+   {w:'más',en:'more',ex:['Más azúcar, por favor.','More sugar, please.']},
+   {w:'menos',en:'less',ex:['Menos hielo, por favor.','Less ice, please.']},
+   {w:'demasiado',en:'too',ex:['Está demasiado frío.','It\'s too cold.']},
+   {w:'también',en:'also',ex:['Yo también quiero un café.','I also want a coffee.']},
+ ]},
+];
+const R=(a,b)=>Array.from({length:b-a+1},(_,i)=>a+i);
+const vIds=k=>CARDS.filter(x=>x.kind===k).map(x=>x.id);
+const GRAM={
+  Nouns:[...R(7,14),...R(20,23),40,...R(51,73),...R(81,89),...vIds('n')],
+  Verbs:vIds('@'),
+  Adjectives:vIds('~'),
+  'Other words':vIds('='),
+  'Verb phrases':[...R(15,19),...R(46,50)],
+  Questions:[29,30,31,35,37,43,44,92,100,101,107,109],
+  'Question words':[111,...R(113,124)],
+};
+GRAM.Phrases=CARDS.map(c=>c.id).filter(id=>!Object.values(GRAM).flat().includes(id));
+const VOC={'All vocabulary':CARDS.filter(x=>x.kind).map(x=>x.id)};
+CARDS.filter(x=>x.kind&&x.cat!=='Verbs'&&x.cat!=='Adjectives').forEach(x=>{(VOC[x.cat]=VOC[x.cat]||[]).push(x.id)});
+const SIT={
+  Greetings:R(1,6),
+  'Coffee shop':[...R(7,34),...R(46,50)],
+  Paying:R(35,40),
+  'Getting help':R(41,45),
+};
+const TIME={
+  'Days and weeks':[...R(51,57),74,75,76,125,126,84,85,90,91,131,132,137,138,139,140],
+  'Months and years':[...R(58,69),86,87,...R(133,136)],
+  Seasons:R(70,73),
+  'Time words':[...R(74,83),88,89,...R(125,130),...R(141,152)],
+  'Telling time':R(92,106),
+  Dates:R(107,112),
+};
+let D=null;
+function newDeck(ids){D={ids,queue:shuffle(ids),revealed:false}}
+function nextCard(again){
+  const id=D.queue.shift();
+  if(again)D.queue.splice(Math.min(3,D.queue.length),0,id);
+  if(!D.queue.length)D.queue=shuffle(D.ids);
+  D.revealed=false;render();
+}
+function viewCards(){
+  const x=BY_ID[D.queue[0]], isH=x.dir==='H';
+  const [main,note]=splitNote(x.en);
+  const sen=sentOf(x), vb=x.verb||VERB[x.id];
+  const detail=()=>{
+    let h='';
+    if(sen)h+=`<div class="ex1"><button class="play" data-a="plays" aria-label="Play sentence">🔊</button><div class="t"><b>${esc(sen[0])}</b><span>${esc(sen[1])}</span></div></div>`;
+    if(vb)h+=`<div class="verb"><div class="tag">${esc(vb.inf)} · ${esc(vb.en)} · ${esc(vb.tense)}</div><table>${vb.forms.map((f,i)=>`<tr><td>${PRON[i]}</td><td><b>${esc(f)}</b></td></tr>`).join('')}</table></div>`;
+    return h;
+  };
+  let front,back='';
+  if(isH){
+    front=`<button class="play lg" data-a="play" aria-label="Play audio">🔊</button><div class="big">${esc(x.es)}</div>`;
+    if(D.revealed)back=`<div class="ans"><div class="es" style="color:var(--ink)">${esc(main)}</div>${note?`<div class="note">${esc(note)}</div>`:''}${detail()}</div>`;
+  }else{
+    front=`<div class="big">${esc(main)}</div>`;
+    if(D.revealed)back=`<div class="ans"><div class="es">${esc(x.es)}</div><button class="play" data-a="play" aria-label="Play audio">🔊</button>${note?`<div class="note">${esc(note)}</div>`:''}${detail()}</div>`;
+  }
+  const act=D.revealed
+    ?`<button class="btn" data-a="again">Again</button><button class="btn pri" data-a="next">Next</button>`
+    :`<button class="btn pri" data-a="reveal">Show answer</button>`;
+  return {html:`<div class="card" ${D.revealed?'':'data-a="reveal"'}>${front}${back}</div>`,act};
+}
+
+/* ---------- Home, routing, events ---------- */
+/* ---------- Timelines (reference) ---------- */
+const todayDow=new Date().getDay(), todayMon=new Date().getMonth();
+const DAYS_TL=[['domingo','Sunday','dom'],['lunes','Monday','lun'],['martes','Tuesday','mar'],['miércoles','Wednesday','mié'],['jueves','Thursday','jue'],['viernes','Friday','vie'],['sábado','Saturday','sáb']];
+const MONTHS_TL=[['enero','January'],['febrero','February'],['marzo','March'],['abril','April'],['mayo','May'],['junio','June'],['julio','July'],['agosto','August'],['septiembre','September'],['octubre','October'],['noviembre','November'],['diciembre','December']];
+const SEASONS_TL=[['el invierno','winter',1,3],['la primavera','spring',3,6],['el verano','summer',6,9],['el otoño','autumn (fall)',9,12],['el invierno','winter',12,13]];
+const tlCell=(es,en,now,small)=>`<div class="tl-c${now?' now':''}"><i class="dot"></i><b>${esc(es)}</b><span>${esc(en)}</span></div>`;
+const tlStrip=(cells,w,extra='')=>extra===' tl-fit'?`<div class="tl tl-fit"><div class="tl-track"><div class="tl-row" style="display:grid;grid-template-columns:repeat(${cells.length},1fr)">${cells.join('')}</div></div></div>`:`<div class="tl"><div class="tl-track" style="min-width:${w}px"><div class="tl-row" style="display:grid;grid-template-columns:repeat(${cells.length},1fr)">${cells.join('')}</div>${extra}</div></div>`;
+const REL=[
+ ['Days',[['anteayer','the day before yesterday'],['ayer','yesterday'],['hoy','today',1],['mañana','tomorrow'],['pasado mañana','the day after tomorrow']]],
+ ['Weeks',[['la semana pasada','last week'],['esta semana','this week',1],['la semana que viene','next week']]],
+ ['Months',[['el mes pasado','last month'],['este mes','this month',1],['el mes que viene','next month']]],
+ ['Years',[['el año pasado','last year'],['este año','this year',1],['el año que viene','next year']]],
+];
+const TIMELINES=[
+ {id:'days',label:'Days',sub:'domingo → sábado',page:()=>`<div class="vhead"><div class="big">Days of the week</div></div>`+
+   tlStrip(DAYS_TL.map(([es,en],i)=>tlCell(es,en,i===todayDow)),7*104)},
+ {id:'months',label:'Months',sub:'enero → diciembre',page:()=>`<div class="vhead"><div class="big">Months</div></div>`+
+   tlStrip(MONTHS_TL.map(([es,en],i)=>tlCell(es,en,i===todayMon)),12*108,
+     `<div class="seasons" style="display:grid;grid-template-columns:repeat(12,1fr)">${SEASONS_TL.map(([es,en,a,b])=>`<div class="season" style="grid-column:${a}/${b}"><b>${esc(es)}</b><span>${esc(en)}</span></div>`).join('')}</div>`)},
+ {id:'relative',label:'Past and future',sub:'ayer, hoy, mañana',page:()=>`<div class="vhead"><div class="big">Past and future</div></div>`+
+   REL.map(([name,cells])=>`<div class="tag tlh">${name}</div>`+tlStrip(cells.map(([es,en,now])=>tlCell(es,en,now)),0,' tl-fit')).join('')},
+];
+const LINK=[
+ {id:'frequency',label:'How often',sub:'normalmente',title:'How often (frequency)',words:[
+   {w:'siempre',en:'always',ex:['Siempre tomo café con leche.','I always have coffee with milk.']},
+   {w:'casi siempre',en:'almost always',ex:['Casi siempre tomo el autobús.','I almost always take the bus.']},
+   {w:'normalmente',en:'usually',ex:['Normalmente desayuno a las ocho.','I usually have breakfast at eight.']},
+   {w:'generalmente',en:'generally',ex:['Generalmente como en casa.','I generally eat at home.']},
+   {w:'a menudo',en:'often',ex:['A menudo voy al café.','I often go to the café.']},
+   {w:'muchas veces',en:'many times, often',ex:['Muchas veces como pescado.','I often eat fish.']},
+   {w:'a veces',en:'sometimes',ex:['A veces tomo un té.','Sometimes I have a tea.']},
+   {w:'de vez en cuando',en:'from time to time',ex:['De vez en cuando voy al cine.','From time to time I go to the movies.']},
+   {w:'casi nunca',en:'hardly ever',ex:['Casi nunca bebo cerveza.','I hardly ever drink beer.']},
+   {w:'nunca',en:'never',ex:['Nunca tomo café con azúcar.','I never have coffee with sugar.']},
+ ]},
+ {id:'contrast',label:'Contrast',sub:'sin embargo',title:'Contrast (but, however)',words:[
+   {w:'pero',en:'but',ex:['Quiero un café, pero no tengo dinero.','I want a coffee, but I have no money.']},
+   {w:'sin embargo',en:'however',ex:['El café es caro; sin embargo, es muy bueno.','The coffee is expensive; however, it is very good.']},
+   {w:'aunque',en:'although',ex:['Aunque hace frío, voy al parque.','Although it\'s cold, I go to the park.']},
+   {w:'en cambio',en:'on the other hand',ex:['Ana habla inglés; en cambio, Pablo habla francés.','Ana speaks English; on the other hand, Pablo speaks French.']},
+ ]},
+ {id:'addition',label:'Addition',sub:'además',title:'Addition (and, also)',words:[
+   {w:'y',en:'and',ex:['Quiero un café y una tostada.','I want a coffee and a piece of toast.']},
+   {w:'también',en:'also, too',ex:['Ana también habla inglés.','Ana also speaks English.']},
+   {w:'además',en:'besides, also',ex:['Es barato y, además, está muy bueno.','It\'s cheap and, besides, it\'s very good.']},
+   {w:'tampoco',en:'neither, either',ex:['Pablo tampoco habla francés.','Pablo doesn\'t speak French either.']},
+   {w:'incluso',en:'even',ex:['Incluso los domingos voy al café.','Even on Sundays I go to the café.']},
+ ]},
+ {id:'cause',label:'Cause and result',sub:'por eso',title:'Cause and result (because, so)',words:[
+   {w:'porque',en:'because',ex:['Voy al café porque quiero un café.','I go to the café because I want a coffee.']},
+   {w:'por eso',en:'that\'s why',ex:['Tengo frío; por eso quiero un té caliente.','I\'m cold; that\'s why I want a hot tea.']},
+   {w:'así que',en:'so',ex:['Es tarde, así que pago la cuenta.','It\'s late, so I pay the bill.']},
+   {w:'entonces',en:'then, so',ex:['—Quiero un café. —Entonces vamos al bar.','"I want a coffee." "Then let\'s go to the bar."']},
+   {w:'por lo tanto',en:'therefore',ex:['Hace frío; por lo tanto, necesito un abrigo.','It\'s cold; therefore, I need a coat.']},
+ ]},
+ {id:'sequence',label:'Sequence',sub:'primero, luego',title:'Sequence (first, then, finally)',words:[
+   {w:'primero',en:'first',ex:['Primero pido un café.','First I order a coffee.']},
+   {w:'luego',en:'then, later',ex:['Luego pago la cuenta.','Then I pay the bill.']},
+   {w:'después',en:'after that',ex:['Después voy a casa.','After that I go home.']},
+   {w:'más tarde',en:'later',ex:['Más tarde voy al banco.','Later I go to the bank.']},
+   {w:'finalmente',en:'finally',ex:['Finalmente llegamos al café.','Finally we arrive at the café.']},
+   {w:'por último',en:'lastly',ex:['Por último, un postre.','Lastly, a dessert.']},
+   {w:'antes',en:'before',ex:['Antes de comer tomo un café.','Before eating I have a coffee.']},
+ ]},
+ {id:'choice',label:'Choice and condition',sub:'si, cuando',title:'Choice and condition (or, if, when)',words:[
+   {w:'o',en:'or',ex:['¿Café o té?','Coffee or tea?']},
+   {w:'si',en:'if',ex:['Si hace frío, tomo un té.','If it\'s cold, I have a tea.']},
+   {w:'cuando',en:'when',ex:['Cuando llego al café, pido un cortado.','When I arrive at the café, I order a cortado.']},
+   {w:'mientras',en:'while',ex:['Mientras como, escucho música.','While I eat, I listen to music.']},
+ ]},
+ {id:'opinion',label:'Opinion and examples',sub:'por ejemplo',title:'Opinion and examples (of course, for example)',words:[
+   {w:'claro',en:'of course',ex:['Claro, ahora mismo.','Of course, right away.']},
+   {w:'por supuesto',en:'of course, certainly',ex:['—¿Puedo sentarme aquí? —Por supuesto.','"Can I sit here?" "Certainly."']},
+   {w:'quizás',en:'maybe',ex:['Quizás voy al cine.','Maybe I\'ll go to the movies.']},
+   {w:'tal vez',en:'perhaps',ex:['Tal vez voy mañana.','Perhaps I\'ll go tomorrow.']},
+   {w:'en mi opinión',en:'in my opinion',ex:['En mi opinión, el café es muy bueno.','In my opinion, the coffee is very good.']},
+   {w:'por ejemplo',en:'for example',ex:['Me gustan las frutas, por ejemplo, las naranjas.','I like fruit, for example, oranges.']},
+   {w:'es decir',en:'that is',ex:['Cuesta diez euros, es decir, es caro.','It costs ten euros, that is, it\'s expensive.']},
+ ]},
+];
+const cellOf=f=>f.map(([s,b])=>b?`<b>${esc(s)}</b>`:esc(s)).join('');
+const exBox=(rows)=>`<div class="vex">${rows.map(([es,en])=>`<b>${esc(es)}</b><span>${esc(en)}</span>`).join('')}</div>`;
+const SECTIONS={
+  conj:{title:'Verbs',items:CONJ,page:v=>`<div class="vhead"><div class="big">${esc(v.title)}</div><div class="note">${esc(v.note)}</div></div>`+
+    v.tenses.map(te=>`<div class="verb"><div class="tag">${esc(te.name)}</div><table>${te.forms.map((f,i)=>`<tr><td>${PRON[i]}</td><td>${cellOf(f)}</td></tr>`).join('')}</table>${exBox([te.ex])}</div>`).join('')},
+  adj:{title:'Adjectives',items:ADJ,page:v=>`<div class="vhead"><div class="big">${esc(v.title)}</div></div>`+
+    v.words.map(w=>`<div class="verb"><div class="tag">${esc(w.w)} · ${esc(w.en)}</div><table>${w.f.map((f,i)=>`<tr><td>${AFORMS[i]}</td><td><b>${esc(f)}</b></td></tr>`).join('')}</table>${exBox(w.ex)}</div>`).join('')},
+  lw:{title:'Linking words',items:LINK,page:v=>SECTIONS.adv.page(v)},
+  tl:{title:'Timelines',items:TIMELINES,page:v=>v.page()},
+  adv:{title:'Adverbs',items:ADV,page:v=>`<div class="vhead"><div class="big">${esc(v.title)}</div></div>`+
+    v.words.map(w=>`<div class="verb"><div class="tag">${esc(w.w)} · ${esc(w.en)}</div>${exBox([w.ex])}</div>`).join('')},
+};
+function route(){
+  const h=decodeURIComponent(location.hash.slice(1)).split('/');
+  const sec=SECTIONS[h[0]];
+  if(sec){const item=sec.items.find(i=>i.id===h[1]);return item?{type:'page',key:h[0],sec,item}:{type:'list',key:h[0],sec}}
+  const pool=h[0]==='g'?GRAM[h[1]]:h[0]==='s'?SIT[h[1]]:h[0]==='t'?TIME[h[1]]:h[0]==='v'?VOC[h[1]]:h[0]==='all'?CARDS.map(c=>c.id):null;
+  return pool&&pool.length?{type:'deck',pool,key:location.hash}:{type:'home'};
+}
+function viewHome(){
+  const grp=(title,map,k)=>`<h2>${title}</h2><div class="tags">${Object.entries(map).map(([n,ids])=>
+    `<a class="tagbtn" href="#${k}/${encodeURIComponent(n)}"><span>${esc(n)}</span><i>${ids.length}</i></a>`).join('')}</div>`;
+  return grp('Grammar',GRAM,'g')+grp('Situation',SIT,'s')+grp('Time',TIME,'t')+grp('Vocabulary',VOC,'v')+
+    `<div class="tags"><a class="tagbtn" href="#all"><span>All cards</span><i>${CARDS.length}</i></a></div>`+
+    `<h2>Reference</h2><div class="tags">${Object.entries(SECTIONS).map(([k,s])=>`<a class="tagbtn" href="#${k}"><span>${s.title}</span><i>${s.items.length}</i></a>`).join('')}</div>`;
+}
+function viewList(sec,key){
+  return `<div class="tags">${sec.items.map(v=>`<a class="tagbtn" href="#${key}/${encodeURIComponent(v.id)}"><span>${esc(v.label)}</span><i>${esc(v.sub)}</i></a>`).join('')}</div>`;
+}
+function showAuto(){const b=$('#auto');b.setAttribute('aria-checked',AUTO)}
+function autoplay(){if(AUTO&&D&&!D.revealed&&BY_ID[D.queue[0]].dir==='H')speak(spoken(BY_ID[D.queue[0]]))}
+let curKey=null;
+function paint(html,act){$('#app').innerHTML=html;$('#act').innerHTML=act||'';window.scrollTo(0,0)}
+function render(){
+  const r=route(), back=$('#back'), hl=$('#homelink');
+  const deck=r.type==='deck';
+  back.hidden=r.type==='home'; back.href=r.type==='page'?'#'+r.key:'#';
+  back.textContent=r.type==='page'?'← '+r.sec.title:'← Home';
+  hl.hidden=r.type!=='page';
+  $('#auto').hidden=$('#act').hidden=!deck;
+  if('speechSynthesis' in window&&!deck)speechSynthesis.cancel();
+  if(r.type==='home'){D=null;curKey=null;return paint(viewHome())}
+  if(r.type==='list'){D=null;curKey=null;return paint(viewList(r.sec,r.key))}
+  if(r.type==='page'){D=null;curKey=null;return paint(r.sec.page(r.item))}
+  const fresh=!D||curKey!==r.key;
+  if(fresh){curKey=r.key;newDeck(r.pool)}
+  const v=viewCards();paint(v.html,v.act);
+  if(fresh)autoplay();
+}
+window.addEventListener('hashchange',render);
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-a]');if(!b)return;
+  switch(b.dataset.a){
+    case'reveal':D.revealed=true;render();if(AUTO&&BY_ID[D.queue[0]].dir==='S')speak(spoken(BY_ID[D.queue[0]]));break;
+    case'next':nextCard(false);autoplay();break;
+    case'again':nextCard(true);autoplay();break;
+    case'play':speak(spoken(BY_ID[D.queue[0]]));break;
+    case'plays':speak(sentOf(BY_ID[D.queue[0]])[0]);break;
+    case'auto':AUTO=!AUTO;try{localStorage.setItem('cafe-auto',AUTO?'1':'0')}catch(e){}showAuto();break;
+  }
+});
+showAuto();render();
+</script>
+</body>
+</html>
