@@ -12,10 +12,11 @@
   --blue:#186cbb; --on-blue:#ffffff;
   --green:#137a6d; --green-l:#d0e4e2; --orange:#b44d00; --orange-l:#f0dbcc;
   --good:var(--green); --bad:var(--orange);
+  --band-dark:#333333; --on-dark:#ffffff;
 }
 @media (prefers-color-scheme: dark){
   :root{--surface:#0b0b0b; --raised:#1a1a1a; --ink:#f2f2f2; --muted:#a8aaaa; --line:#2e2e2e; --strong:#8a8c8c;
-    --blue:#5aa6ec; --on-blue:#000000;}
+    --blue:#5aa6ec; --on-blue:#000000; --band-dark:#262626; --on-dark:#f2f2f2;}
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%}
@@ -61,6 +62,22 @@ h2{margin:32px 0 12px;font-size:12px;line-height:16px;font-weight:600;letter-spa
 .season b,.season span{display:block;line-height:20px}.season b{font-size:16px}.season span{color:var(--muted);font-size:14px}
 .tlh{margin-top:32px}
 .tl-fit .tl-c{padding-right:4px}.tl-fit .tl-c b{font-size:16px;line-height:20px}.tl-fit .tl-c span{font-size:13px;line-height:18px}
+.dg{display:block;width:100%;height:auto;max-width:420px;margin:16px auto 0}
+.dg text{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;fill:var(--ink)}
+.dg .es{font-weight:700;font-size:16px}.dg .en{font-size:13px;fill:var(--muted)}
+.dg .ln{stroke:var(--strong);stroke-width:1.5;fill:none}.dg .ah{fill:var(--strong)}
+.dg .hub{fill:var(--blue)}.dg .hub-o{fill:var(--surface);stroke:var(--strong);stroke-width:1.5}
+.dg .hub-t{fill:var(--on-blue);font-weight:700;font-size:15px}
+.dg .bx{fill:var(--raised);stroke:var(--strong);stroke-width:1.5}.dg .bl{fill:var(--blue)}
+.figs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.fig{background:var(--raised);padding:8px 8px 12px;margin:0}
+.fig .dg{margin-top:0}.fig .es{display:block;font-weight:700;margin-top:4px}.fig .en{display:block;color:var(--muted);font-size:14px;line-height:20px}
+.dh{margin:32px 0 0}
+.tl-c .sm{font-size:13px;line-height:18px;margin-top:4px}
+.bands{margin-top:24px;display:grid;grid-template-columns:repeat(7,1fr)}
+.band{padding:8px 12px;min-width:0}.band b,.band span{display:block;line-height:20px}.band span{font-size:14px}
+.band.wk{background:var(--raised);grid-column:1/6}.band.wk span{color:var(--muted)}
+.band.we{background:var(--band-dark);color:var(--on-dark);grid-column:6/8;border-left:2px solid var(--surface)}
 .vhead{margin-top:16px}.vhead .note{margin-top:4px}
 .tags+.tags{margin-top:12px}
 .card[data-a]{cursor:pointer}
@@ -1181,6 +1198,13 @@ const TIMELINES=[
  {id:'months',label:'Months',sub:'enero → diciembre',page:()=>`<div class="vhead"><div class="big">Months</div></div>`+
    tlStrip(MONTHS_TL.map(([es,en],i)=>tlCell(es,en,i===todayMon)),12*108,
      `<div class="seasons" style="display:grid;grid-template-columns:repeat(12,1fr)">${SEASONS_TL.map(([es,en,a,b])=>`<div class="season" style="grid-column:${a}/${b}"><b>${esc(es)}</b><span>${esc(en)}</span></div>`).join('')}</div>`)},
+ {id:'week',label:'The week',sub:'lunes → domingo',page:()=>{
+   const W=[['lunes','Monday'],['martes','Tuesday'],['miércoles','Wednesday'],['jueves','Thursday'],['viernes','Friday'],['sábado','Saturday'],['domingo','Sunday']];
+   const pl=d=>/s$/.test(d)?d:d+'s', today=(todayDow+6)%7;
+   const cells=W.map(([es,en],i)=>`<div class="tl-c${i===today?' now':''}"><i class="dot"></i><b>${esc(es)}</b><span>${esc(en)}</span><span class="sm">el ${esc(es)} · los ${esc(pl(es))}</span></div>`);
+   return `<div class="vhead"><div class="big">The week</div></div>`+
+     tlStrip(cells,7*112,`<div class="bands"><div class="band wk"><b>entre semana</b><span>on weekdays</span></div><div class="band we"><b>el fin de semana</b><span>the weekend</span></div></div>`);
+ }},
  {id:'relative',label:'Past and future',sub:'ayer, hoy, mañana',page:()=>`<div class="vhead"><div class="big">Past and future</div></div>`+
    REL.map(([name,cells])=>`<div class="tag tlh">${name}</div>`+tlStrip(cells.map(([es,en,now])=>tlCell(es,en,now)),0,' tl-fit')).join('')},
 ];
@@ -1242,6 +1266,56 @@ const LINK=[
    {w:'es decir',en:'that is',ex:['Cuesta diez euros, es decir, es caro.','It costs ten euros, that is, it\'s expensive.']},
  ]},
 ];
+/* ---------- Directions: diagrams drawn as inline SVG ---------- */
+const svgT=(x,y,cls,s)=>`<text class="${cls}" x="${x}" y="${y}" text-anchor="middle">${esc(s)}</text>`;
+const ARROW=`<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>`;
+const arrow=(x1,y1,x2,y2)=>`<line class="ln" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" marker-end="url(#ah)"/>`;
+function crossSvg([tu,te],[bu,be],[lu,le],[ru,re],hub,solid){
+  return `<svg class="dg" viewBox="0 0 360 300" role="img" aria-label="${esc(tu+', '+bu+', '+lu+', '+ru)}">${ARROW}
+    ${arrow(180,118,180,64)}${arrow(180,182,180,236)}${arrow(148,150,114,150)}${arrow(212,150,246,150)}
+    <circle class="${solid?'hub':'hub-o'}" cx="180" cy="150" r="30"/>${hub?svgT(180,155,'hub-t',hub):''}
+    ${svgT(180,34,'es',tu)}${svgT(180,52,'en',te)}
+    ${svgT(180,268,'es',bu)}${svgT(180,286,'en',be)}
+    ${svgT(62,146,'es',lu)}${svgT(62,164,'en',le)}
+    ${svgT(298,146,'es',ru)}${svgT(298,164,'en',re)}</svg>`;
+}
+function miniSvg(k){
+  const bx=(x,y,w,h)=>`<rect class="bx" x="${x}" y="${y}" width="${w}" height="${h}"/>`, ball=(x,y)=>`<circle class="bl" cx="${x}" cy="${y}" r="11"/>`;
+  const art={
+    encima:bx(50,46,60,36)+ball(80,35),
+    debajo:bx(50,10,60,36)+ball(80,66),
+    dentro:bx(36,14,88,68)+ball(80,48),
+    fuera:bx(24,28,60,40)+ball(128,48),
+    delante:bx(52,20,64,48)+ball(70,60),
+    detras:ball(100,40)+bx(44,30,64,48),
+    lado:bx(20,32,56,40)+ball(112,52),
+    entre:bx(10,32,44,40)+bx(106,32,44,40)+ball(80,52),
+  }[k];
+  return `<svg class="dg" viewBox="0 0 160 96" aria-hidden="true">${art}</svg>`;
+}
+const POS=[['encima','encima de','on top of'],['debajo','debajo de','under'],['dentro','dentro de','inside'],['fuera','fuera de','outside'],['delante','delante de','in front of'],['detras','detrás de','behind'],['lado','al lado de','next to'],['entre','entre','between']];
+const wordsPage=(title,words)=>`<div class="vhead"><div class="big">${esc(title)}</div></div>`+
+  words.map(w=>`<div class="verb"><div class="tag">${esc(w.w)} · ${esc(w.en)}</div>${exBox([w.ex])}</div>`).join('');
+const DIRS=[
+ {id:'cross',label:'Up, down, left, right',sub:'arriba, abajo',html:()=>`<div class="vhead"><div class="big">Up, down, left, right</div></div>`+
+   crossSvg(['arriba','up'],['abajo','down'],['a la izquierda','left'],['a la derecha','right'],'aquí',true)+
+   `<h2 class="dh">Compass</h2>`+
+   crossSvg(['el norte','north'],['el sur','south'],['el oeste','west'],['el este','east'],'',false)},
+ {id:'places',label:'Where is it?',sub:'encima de, dentro de',html:()=>`<div class="vhead"><div class="big">Where is it?</div></div><div class="figs">`+
+   POS.map(([k,es,en])=>`<figure class="fig">${miniSvg(k)}<b class="es">${esc(es)}</b><span class="en">${esc(en)}</span></figure>`).join('')+`</div>`},
+ {id:'giving',label:'Giving directions',sub:'todo recto',html:()=>wordsPage('Giving directions',[
+   {w:'¿Cómo llego a…?',en:'How do I get to…?',ex:['¿Cómo llego a la estación?','How do I get to the station?']},
+   {w:'todo recto',en:'straight ahead',ex:['Siga todo recto.','Go straight ahead.']},
+   {w:'a la izquierda',en:'to the left',ex:['Gire a la izquierda.','Turn left.']},
+   {w:'a la derecha',en:'to the right',ex:['Gire a la derecha.','Turn right.']},
+   {w:'la primera calle',en:'the first street',ex:['Tome la primera calle a la derecha.','Take the first street on the right.']},
+   {w:'hasta el final',en:'to the end',ex:['Siga hasta el final de la calle.','Continue to the end of the street.']},
+   {w:'cruzar',en:'to cross',ex:['Cruce la plaza.','Cross the square.']},
+   {w:'en la esquina',en:'on the corner',ex:['El café está en la esquina.','The café is on the corner.']},
+   {w:'a cinco minutos',en:'five minutes away',ex:['Está a cinco minutos.','It\'s five minutes away.']},
+   {w:'¿Está lejos?',en:'Is it far?',ex:['Perdone, ¿está lejos la estación?','Excuse me, is the station far?']},
+ ])},
+];
 const cellOf=f=>f.map(([s,b])=>b?`<b>${esc(s)}</b>`:esc(s)).join('');
 const exBox=(rows)=>`<div class="vex">${rows.map(([es,en])=>`<b>${esc(es)}</b><span>${esc(en)}</span>`).join('')}</div>`;
 const SECTIONS={
@@ -1249,6 +1323,7 @@ const SECTIONS={
     v.tenses.map(te=>`<div class="verb"><div class="tag">${esc(te.name)}</div><table>${te.forms.map((f,i)=>`<tr><td>${PRON[i]}</td><td>${cellOf(f)}</td></tr>`).join('')}</table>${exBox([te.ex])}</div>`).join('')},
   adj:{title:'Adjectives',items:ADJ,page:v=>`<div class="vhead"><div class="big">${esc(v.title)}</div></div>`+
     v.words.map(w=>`<div class="verb"><div class="tag">${esc(w.w)} · ${esc(w.en)}</div><table>${w.f.map((f,i)=>`<tr><td>${AFORMS[i]}</td><td><b>${esc(f)}</b></td></tr>`).join('')}</table>${exBox(w.ex)}</div>`).join('')},
+  dir:{title:'Directions',items:DIRS,page:v=>v.html()},
   lw:{title:'Linking words',items:LINK,page:v=>SECTIONS.adv.page(v)},
   tl:{title:'Timelines',items:TIMELINES,page:v=>v.page()},
   adv:{title:'Adverbs',items:ADV,page:v=>`<div class="vhead"><div class="big">${esc(v.title)}</div></div>`+
