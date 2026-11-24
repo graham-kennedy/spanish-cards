@@ -94,6 +94,7 @@ h2{margin:32px 0 12px;font-size:12px;line-height:16px;font-weight:600;letter-spa
 .cst th{font-size:12px;line-height:16px;font-weight:600;color:var(--muted)}.cst tr>th:first-child{font-size:16px;color:var(--ink);font-weight:700}
 @media print{header,.dock,.topbtns{display:none!important}main{padding:0}body{font-size:12pt}.csg{gap:4px}.cs{background:none;border:1px solid #bbb}}
 .vhead{margin-top:16px}.vhead .note{margin-top:4px}
+.tags.one{grid-template-columns:1fr}
 .tags+.tags{margin-top:12px}
 .card[data-a]{cursor:pointer}
 button.sq{flex:0 0 56px;min-width:0;padding:12px 0}
@@ -1492,6 +1493,57 @@ const DIRS=[
    {w:'¿Está lejos?',en:'Is it far?',ex:['Perdone, ¿está lejos la estación?','Excuse me, is the station far?']},
  ])},
 ];
+const HELP=[
+ {id:'pronounce',label:'Pronunciation',sub:'¿Cómo se pronuncia?',html:()=>wordsPage('Pronunciation',[
+   {w:'¿Cómo se pronuncia esto?',en:'How do you pronounce this?',ex:['¿Cómo se pronuncia esta palabra?','How do you pronounce this word?']},
+   {w:'¿Cómo se pronuncia…?',en:'How do you pronounce…?',ex:['¿Cómo se pronuncia "jamón"?','How do you pronounce "jamón"?']},
+   {w:'¿Lo digo bien?',en:'Am I saying it right?',ex:['Un cortado, por favor. ¿Lo digo bien?','A cortado, please. Am I saying it right?']},
+   {w:'¿Se dice así?',en:'Is that how you say it?',ex:['Un café con leche, ¿se dice así?','A coffee with milk, is that how you say it?']},
+   {w:'Otra vez, por favor.',en:'Again, please.',ex:['Otra vez, por favor. No entiendo.','Again, please. I don\'t understand.']},
+   {w:'¿Puede repetirlo más despacio? / ¿Puedes repetirlo más despacio?',en:'Can you repeat it more slowly?',ex:['¿Puede repetirlo más despacio, por favor?','Can you repeat it more slowly, please?']},
+   {w:'¿Puedo practicar con usted? / ¿Puedo practicar contigo?',en:'Can I practice with you?',ex:['¿Puedo practicar español con usted?','Can I practice Spanish with you?']},
+ ])},
+ {id:'check',label:'Checking what I said',sub:'¿Lo he dicho bien?',html:()=>wordsPage('Checking what I said',[
+   {w:'¿Lo he dicho bien?',en:'Did I say that correctly?',ex:['He dicho "dos cafés". ¿Lo he dicho bien?','I said "dos cafés". Did I say that correctly?']},
+   {w:'¿Es correcto?',en:'Is that correct?',ex:['¿Es correcto decir "Quiero un café"?','Is it correct to say "Quiero un café"?']},
+   {w:'¿Suena natural?',en:'Does that sound natural?',ex:['Quisiera la cuenta. ¿Suena natural?','I\'d like the bill. Does that sound natural?']},
+   {w:'¿Me corrige, por favor? / ¿Me corriges, por favor?',en:'Can you correct me, please?',ex:['Estoy aprendiendo. ¿Me corrige, por favor?','I\'m learning. Can you correct me, please?']},
+   {w:'¿Cómo puedo decirlo mejor?',en:'How can I say it better?',ex:['No sé cómo decirlo. ¿Cómo puedo decirlo mejor?','I don\'t know how to say it. How can I say it better?']},
+   {w:'Quiero decir…',en:'I mean…',ex:['Quiero decir "la cuenta".','I mean "the bill".']},
+   {w:'Perdón, me he equivocado.',en:'Sorry, I made a mistake.',ex:['Perdón, me he equivocado. Quiero un cortado.','Sorry, I made a mistake. I want a cortado.']},
+ ])},
+ {id:'understand',label:'Understanding',sub:'¿Qué significa?',html:()=>wordsPage('Understanding',[
+   {w:'No entiendo.',en:'I don\'t understand.',ex:['Perdone, no entiendo.','Sorry, I don\'t understand.']},
+   {w:'No he entendido.',en:'I didn\'t understand.',ex:['Perdone, no he entendido.','Sorry, I didn\'t understand.']},
+   {w:'Entiendo un poco.',en:'I understand a little.',ex:['Entiendo un poco de español.','I understand a little Spanish.']},
+   {w:'¿Qué significa…?',en:'What does… mean?',ex:['¿Qué significa "caña"?','What does "caña" mean?']},
+   {w:'¿Qué quiere decir…?',en:'What does… mean?',ex:['¿Qué quiere decir "ración"?','What does "ración" mean?']},
+   {w:'¿Puede explicarlo? / ¿Puedes explicarlo?',en:'Can you explain it?',ex:['¿Puede explicarlo otra vez, por favor?','Can you explain it again, please?']},
+   {w:'¿Puede escribirlo? / ¿Puedes escribirlo?',en:'Can you write it down?',ex:['¿Puede escribirlo, por favor?','Can you write it down, please?']},
+   {w:'¿Cómo se escribe?',en:'How do you write it?',ex:['¿Cómo se escribe "cortado"?','How do you write "cortado"?']},
+   {w:'¿Cómo se deletrea?',en:'How do you spell it, letter by letter?',ex:['¿Cómo se deletrea su nombre?','How do you spell your name?']},
+ ])},
+ {id:'words',label:'Words and meanings',sub:'¿Cómo se dice?',html:()=>wordsPage('Words and meanings',[
+   {w:'¿Cómo se dice… en español?',en:'How do you say… in Spanish?',ex:['¿Cómo se dice "cup" en español?','How do you say "cup" in Spanish?']},
+   {w:'¿Cómo se dice… en inglés?',en:'How do you say… in English?',ex:['¿Cómo se dice "caña" en inglés?','How do you say "caña" in English?']},
+   {w:'¿Cómo se llama esto?',en:'What is this called?',ex:['Perdone, ¿cómo se llama esto?','Excuse me, what is this called?']},
+   {w:'¿Qué es esto?',en:'What is this?',ex:['Perdone, ¿qué es esto?','Excuse me, what is this?']},
+   {w:'No sé la palabra.',en:'I don\'t know the word.',ex:['No sé la palabra en español.','I don\'t know the word in Spanish.']},
+   {w:'¿Cuál es la diferencia entre… y…?',en:'What\'s the difference between… and…?',ex:['¿Cuál es la diferencia entre "ser" y "estar"?','What\'s the difference between "ser" and "estar"?']},
+   {w:'¿Se usa mucho?',en:'Is it used a lot?',ex:['Esta palabra, ¿se usa mucho?','This word, is it used a lot?']},
+   {w:'¿Puede darme un ejemplo? / ¿Puedes darme un ejemplo?',en:'Can you give me an example?',ex:['¿Puede darme un ejemplo, por favor?','Can you give me an example, please?']},
+ ])},
+ {id:'learner',label:'Saying I\'m learning',sub:'Estoy aprendiendo',html:()=>wordsPage('Saying I\'m learning',[
+   {w:'Estoy aprendiendo español.',en:'I\'m learning Spanish.',ex:['Hola, estoy aprendiendo español.','Hello, I\'m learning Spanish.']},
+   {w:'Hablo un poco de español.',en:'I speak a little Spanish.',ex:['Hablo un poco de español, pero entiendo más.','I speak a little Spanish, but I understand more.']},
+   {w:'Mi español no es muy bueno.',en:'My Spanish is not very good.',ex:['Mi español no es muy bueno todavía.','My Spanish is not very good yet.']},
+   {w:'¿Habla inglés? / ¿Hablas inglés?',en:'Do you speak English?',ex:['Perdone, ¿habla inglés?','Excuse me, do you speak English?']},
+   {w:'¿Puedo hablar en español?',en:'Can I speak in Spanish?',ex:['Quiero practicar. ¿Puedo hablar en español?','I want to practice. Can I speak in Spanish?']},
+   {w:'Por favor, hable en español. / Por favor, habla en español.',en:'Please speak in Spanish.',ex:['Por favor, hable en español conmigo.','Please speak in Spanish with me.']},
+   {w:'Necesito practicar más.',en:'I need to practice more.',ex:['Necesito practicar más. ¿Puede ayudarme?','I need to practice more. Can you help me?']},
+   {w:'Gracias por su paciencia. / Gracias por tu paciencia.',en:'Thank you for your patience.',ex:['Gracias por su paciencia.','Thank you for your patience.']},
+ ])},
+];
 const cellOf=f=>f.map(([s,b])=>b?`<b>${esc(s)}</b>`:esc(s)).join('');
 const exBox=(rows)=>`<div class="vex">${rows.map(([es,en])=>`<b>${esc(es)}</b><span>${esc(en)}</span>`).join('')}</div>`;
 const SECTIONS={
@@ -1499,6 +1551,7 @@ const SECTIONS={
     v.tenses.map(te=>`<div class="verb"><div class="tag">${esc(te.name)}</div><table>${te.forms.map((f,i)=>`<tr><td>${PRON[i]}</td><td>${cellOf(f)}</td></tr>`).join('')}</table>${exBox([te.ex])}</div>`).join('')},
   adj:{title:'Adjectives',items:ADJ,page:v=>`<div class="vhead"><div class="big">${esc(v.title)}</div></div>`+
     v.words.map(w=>`<div class="verb"><div class="tag">${esc(w.w)} · ${esc(w.en)}</div><table>${w.f.map((f,i)=>`<tr><td>${AFORMS[i]}</td><td><b>${esc(f)}</b></td></tr>`).join('')}</table>${exBox(w.ex)}</div>`).join('')},
+  help:{title:'Asking for help',items:HELP,page:v=>v.html()},
   dir:{title:'Directions',items:DIRS,page:v=>v.html()},
   lw:{title:'Linking words',items:LINK,page:v=>SECTIONS.adv.page(v)},
   tl:{title:'Timelines',items:TIMELINES,page:v=>v.page()},
@@ -1542,11 +1595,12 @@ function viewCheat(){
     sec('Colors',colors)+
     sec('Directions',[['arriba','up'],['abajo','down'],['a la izquierda','left'],['a la derecha','right'],['todo recto','straight ahead'],['delante de','in front of'],['detrás de','behind'],['al lado de','next to'],['encima de','on top of'],['debajo de','under'],['dentro de','inside'],['fuera de','outside'],['entre','between'],['cerca / lejos','near / far'],['el norte','north'],['el sur','south'],['el este','east'],['el oeste','west']].map(([a,b])=>cell(a,b)),'two')+
     sec('Question words',[['¿Qué?','What?'],['¿Quién?','Who?'],['¿Cómo?','How?'],['¿Cuándo?','When?'],['¿Dónde?','Where?'],['¿Por qué?','Why?'],['¿Cuánto?','How much?'],['¿Cuántos?','How many?'],['¿Cuál?','Which one?'],['¿De dónde?','Where from?'],['¿Adónde?','Where to?'],['¿Con quién?','With whom?']].map(([a,b])=>cell(a,b)),'two')+
+    sec('Asking for help',[['¿Cómo se pronuncia esto?','How do you pronounce this?'],['¿Lo digo bien?','Am I saying it right?'],['¿Lo he dicho bien?','Did I say that correctly?'],['¿Me corrige, por favor?','Can you correct me, please?'],['¿Puede repetir?','Can you repeat?'],['Más despacio, por favor.','Slower, please.'],['No entiendo.','I don\'t understand.'],['¿Qué significa…?','What does… mean?'],['¿Cómo se dice… en español?','How do you say… in Spanish?'],['¿Cómo se escribe?','How do you write it?'],['Estoy aprendiendo español.','I\'m learning Spanish.'],['¿Habla inglés?','Do you speak English?']].map(([a,b])=>cell(a,b)),'two')+
     sec('Alphabet and sounds',letters,'one')+
     `<h2 class="csh">Key verbs (present)</h2>`+vt;
 }
 function viewList(sec,key){
-  return `<div class="tags">${sec.items.map(v=>`<a class="tagbtn" href="#${key}/${encodeURIComponent(v.id)}"><span>${esc(v.label)}</span><i>${esc(v.sub)}</i></a>`).join('')}</div>`;
+  return `<div class="tags${sec.items.some(v=>v.label.length>14)?' one':''}">${sec.items.map(v=>`<a class="tagbtn" href="#${key}/${encodeURIComponent(v.id)}"><span>${esc(v.label)}</span><i>${esc(v.sub)}</i></a>`).join('')}</div>`;
 }
 function showAuto(){const b=$('#auto');b.setAttribute('aria-checked',AUTO)}
 function autoplay(){if(AUTO&&D&&D.queue.length&&!D.revealed&&BY_ID[D.queue[0]].dir==='H')speak(spoken(BY_ID[D.queue[0]]))}
