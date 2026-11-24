@@ -286,7 +286,7 @@ const CARDS=[
  c(152,'S','desde las ocho','since eight','Time words'),
 ];
 /* ---------- Vocabulary: 500 A1 words (parsed from the text below) ---------- */
-/* Line format: [marker]spanish|english|sentence|sentence in English|[six present forms]. Markers: @ verb, ~ adjective, = other word, none = noun. */
+/* Line format: [marker]spanish|english|sentence|sentence in English|[six present forms]. Markers: @ verb, ~ adjective, = other word, ^ alphabet, none = noun. */
 /*VOCAB_BEGIN*/
 const VOCAB_SRC=`
 #People and family
@@ -592,6 +592,15 @@ el color|color|¿Qué color quiere?|What color do you want?
 =dieciocho|eighteen|Hay dieciocho sillas.|There are eighteen chairs.
 =diecinueve|nineteen|Son diecinueve euros.|It's nineteen euros.
 =veinte|twenty|Cuesta veinte euros.|It costs twenty euros.
+=veintiuno|twenty-one|Cuesta veintiún euros.|It costs twenty-one euros.
+=veintidós|twenty-two|Cuesta veintidós euros.|It costs twenty-two euros.
+=veintitrés|twenty-three|Hay veintitrés mesas.|There are twenty-three tables.
+=veinticuatro|twenty-four|Hoy es el veinticuatro.|Today is the twenty-fourth.
+=veinticinco|twenty-five|Son veinticinco euros.|It's twenty-five euros.
+=veintiséis|twenty-six|Hay veintiséis sillas.|There are twenty-six chairs.
+=veintisiete|twenty-seven|Tengo veintisiete euros.|I have twenty-seven euros.
+=veintiocho|twenty-eight|Son veintiocho euros.|It's twenty-eight euros.
+=veintinueve|twenty-nine|Hay veintinueve personas.|There are twenty-nine people.
 =treinta|thirty|Marta tiene treinta años.|Marta is thirty years old.
 =cuarenta|forty|Pablo tiene cuarenta años.|Pablo is forty years old.
 =cincuenta|fifty|Cuesta cincuenta euros.|It costs fifty euros.
@@ -599,6 +608,7 @@ el color|color|¿Qué color quiere?|What color do you want?
 =setenta|seventy|Son setenta euros.|It's seventy euros.
 =ochenta|eighty|Cuesta ochenta euros.|It costs eighty euros.
 =noventa|ninety|Son noventa euros.|It's ninety euros.
+=treinta y cinco|thirty-five, the pattern for 31 to 99: tens, y, one digit|Son treinta y cinco euros.|It's thirty-five euros.
 =cien|one hundred|Cuesta cien euros.|It costs one hundred euros.
 =mil|one thousand|Cuesta mil euros.|It costs one thousand euros.
 #Adjectives
@@ -806,6 +816,39 @@ la nacionalidad|nationality|¿Cuál es su nacionalidad?|What is your nationality
 la idea|idea|Es una buena idea.|That's a good idea.
 la canción|song|La canción es muy bonita.|The song is very pretty.
 el concierto|concert|El concierto es en la plaza.|The concert is in the square.
+#Alphabet
+^a|A (ah, as in "father")|A de agua.|A as in agua (water).
+^be|B (beh, like English "b", same sound as v)|B de banco.|B as in banco (bank).
+^ce|C (theh, "th" as in "think" before e or i, like "k" before a, o, u)|C de casa.|C as in casa (house).
+^de|D (deh, like English "d", softer between vowels)|D de día.|D as in día (day).
+^e|E (eh, as in "bed")|E de España.|E as in España (Spain).
+^efe|F (EH-feh, like English "f")|F de fútbol.|F as in fútbol (soccer).
+^ge|G (heh, a strong "h" before e or i, like "g" in "go" before a, o, u)|G de gato.|G as in gato (cat).
+^hache|H (AH-cheh, always silent)|H de hotel.|H as in hotel (the h is silent).
+^i|I (ee, as in "see")|I de isla.|I as in isla (island).
+^jota|J (HOH-tah, a strong "h" from the throat)|J de jamón.|J as in jamón (ham).
+^ka|K (kah, like English "k", only in a few words)|K de kilo.|K as in kilo.
+^ele|L (EH-leh, like English "l")|L de leche.|L as in leche (milk).
+^eme|M (EH-meh, like English "m")|M de mesa.|M as in mesa (table).
+^ene|N (EH-neh, like English "n")|N de noche.|N as in noche (night).
+^eñe|Ñ (EH-nyeh, "ny" as in "canyon")|Ñ de año.|Ñ as in año (year).
+^o|O (oh, as in "go" but shorter)|O de ojo.|O as in ojo (eye).
+^pe|P (peh, like English "p" without the puff of air)|P de pan.|P as in pan (bread).
+^cu|Q (koo, sounds like "k", always written qu)|Q de queso.|Q as in queso (cheese).
+^erre|R (EH-rreh, a quick tap, rolled at the start of a word)|R de rojo.|R as in rojo (red).
+^ese|S (EH-seh, like English "s")|S de sol.|S as in sol (sun).
+^te|T (teh, like English "t" without the puff of air)|T de taza.|T as in taza (cup).
+^u|U (oo, as in "moon")|U de uno.|U as in uno (one).
+^uve|V (OO-beh, same sound as b)|V de vino.|V as in vino (wine).
+^uve doble|W (OO-beh DOH-bleh, only in foreign words)|W de whisky.|W as in whisky.
+^equis|X (EH-kees, like "ks")|X de taxi.|X as in taxi.
+^i griega|Y (ee GREE-eh-gah, like "y" in "yes"; as a word it means "and")|Y de yo.|Y as in yo (I).
+^zeta|Z (THEH-tah, "th" as in "think" in Spain)|Z de zapato.|Z as in zapato (shoe).
+^che|Ch (like "ch" in "cheese")|Ch de chocolate.|Ch as in chocolate.
+^elle|Ll (like "y" in "yes")|Ll de llave.|Ll as in llave (key).
+^erre erre|Rr (a strong rolled r)|Rr de perro.|Rr as in perro (dog).
+^cu u|Qu (sounds like "k", the u is silent)|Qu de queso.|Qu as in queso (cheese).
+^ge u|Gu (like "g" in "go" before e or i, the u is silent)|Gu de guitarra.|Gu as in guitarra (guitar).
 `;
 /*VOCAB_END*/
 const PRES_END={ar:['o','as','a','amos','áis','an'],er:['o','es','e','emos','éis','en'],ir:['o','es','e','imos','ís','en']};
@@ -819,7 +862,7 @@ function presentForms(inf){
   VOCAB_SRC.split('\n').forEach(line=>{
     const L=line.trim(); if(!L)return;
     if(L[0]==='#'){cat=L.slice(1).trim();return}
-    const kind='@~='.includes(L[0])?L[0]:'n', f=(kind==='n'?L:L.slice(1)).split('|');
+    const kind='@~=^'.includes(L[0])?L[0]:'n', f=(kind==='n'?L:L.slice(1)).split('|');
     const card=c(++id,'S',f[0].trim(),f[1].trim(),cat);
     card.sent=[f[2].trim(),f[3].trim()]; card.kind=kind;
     if(kind==='@')card.verb={inf:f[0].trim(),en:f[1].trim(),tense:'present',forms:f[4]?f[4].split(',').map(s=>s.trim()):presentForms(f[0].trim())};
@@ -1120,9 +1163,10 @@ const GRAM={
   Questions:[29,30,31,35,37,43,44,92,100,101,107,109],
   'Question words':[111,...R(113,124)],
 };
-GRAM.Phrases=CARDS.map(c=>c.id).filter(id=>!Object.values(GRAM).flat().includes(id));
-const VOC={'All vocabulary':CARDS.filter(x=>x.kind).map(x=>x.id)};
-CARDS.filter(x=>x.kind&&x.cat!=='Verbs'&&x.cat!=='Adjectives').forEach(x=>{(VOC[x.cat]=VOC[x.cat]||[]).push(x.id)});
+GRAM.Phrases=CARDS.filter(x=>x.kind!=='^').map(c=>c.id).filter(id=>!Object.values(GRAM).flat().includes(id));
+const BASICS={Numbers:CARDS.filter(x=>x.cat==='Numbers').map(x=>x.id),Alphabet:CARDS.filter(x=>x.kind==='^').map(x=>x.id)};
+const VOC={'All vocabulary':CARDS.filter(x=>x.kind&&x.kind!=='^').map(x=>x.id)};
+CARDS.filter(x=>x.kind&&x.kind!=='^'&&x.cat!=='Verbs'&&x.cat!=='Adjectives'&&x.cat!=='Numbers').forEach(x=>{(VOC[x.cat]=VOC[x.cat]||[]).push(x.id)});
 const SIT={
   Greetings:R(1,6),
   'Coffee shop':[...R(7,34),...R(46,50)],
@@ -1340,13 +1384,13 @@ function route(){
   if(h[0]==='test')return{type:'deck',test:true,key:'#test'};
   const sec=SECTIONS[h[0]];
   if(sec){const item=sec.items.find(i=>i.id===h[1]);return item?{type:'page',key:h[0],sec,item}:{type:'list',key:h[0],sec}}
-  const pool=h[0]==='g'?GRAM[h[1]]:h[0]==='s'?SIT[h[1]]:h[0]==='t'?TIME[h[1]]:h[0]==='v'?VOC[h[1]]:h[0]==='all'?CARDS.map(c=>c.id):null;
+  const pool=h[0]==='g'?GRAM[h[1]]:h[0]==='s'?SIT[h[1]]:h[0]==='t'?TIME[h[1]]:h[0]==='v'?VOC[h[1]]:h[0]==='b'?BASICS[h[1]]:h[0]==='all'?CARDS.map(c=>c.id):null;
   return pool&&pool.length?{type:'deck',pool,key:location.hash}:{type:'home'};
 }
 function viewHome(){
   const grp=(title,map,k)=>`<h2>${title}</h2><div class="tags">${Object.entries(map).map(([n,ids])=>
     `<a class="tagbtn" href="#${k}/${encodeURIComponent(n)}"><span>${esc(n)}</span><i>${ids.length}</i></a>`).join('')}</div>`;
-  return `<a class="testbtn" href="#test">Test now</a>`+grp('Grammar',GRAM,'g')+grp('Situation',SIT,'s')+grp('Time',TIME,'t')+grp('Vocabulary',VOC,'v')+
+  return `<a class="testbtn" href="#test">Test now</a>`+grp('Basics',BASICS,'b')+grp('Grammar',GRAM,'g')+grp('Situation',SIT,'s')+grp('Time',TIME,'t')+grp('Vocabulary',VOC,'v')+
     `<div class="tags"><a class="tagbtn" href="#all"><span>All cards</span><i>${CARDS.length}</i></a></div>`+
     `<h2>Reference</h2><div class="tags">${Object.entries(SECTIONS).map(([k,s])=>`<a class="tagbtn" href="#${k}"><span>${s.title}</span><i>${s.items.length}</i></a>`).join('')}</div>`;
 }
