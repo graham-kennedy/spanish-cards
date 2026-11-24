@@ -64,6 +64,8 @@ h2{margin:32px 0 12px;font-size:12px;line-height:16px;font-weight:600;letter-spa
 .vhead{margin-top:16px}.vhead .note{margin-top:4px}
 .tags+.tags{margin-top:12px}
 .card[data-a]{cursor:pointer}
+button.sq{flex:0 0 56px;min-width:0;padding:12px 0}
+#app{touch-action:pan-y}
 .card{background:var(--raised);border:0;border-radius:0;padding:32px 24px;margin-top:16px;min-height:min(52vh,420px);display:flex;flex-direction:column;justify-content:center;text-align:center;gap:12px}
 .tag{font-size:12px;line-height:16px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .big{font-size:32px;line-height:38px;font-weight:700;letter-spacing:-.01em;overflow-wrap:anywhere}
@@ -1117,9 +1119,19 @@ const TIME={
   Dates:R(107,112),
 };
 let D=null;
-function newDeck(ids){D={ids,queue:shuffle(ids),revealed:false}}
+function newDeck(ids){D={ids,queue:shuffle(ids),revealed:false,hist:[]}}
+function prevCard(){
+  if(!D.hist.length)return;
+  D.queue.unshift(D.hist.pop());
+  D.revealed=false;render();
+}
+function flip(){
+  D.revealed=!D.revealed;render();
+  if(D.revealed&&AUTO&&BY_ID[D.queue[0]].dir==='S')speak(spoken(BY_ID[D.queue[0]]));
+}
 function nextCard(again){
   const id=D.queue.shift();
+  D.hist.push(id);if(D.hist.length>100)D.hist.shift();
   if(again)D.queue.splice(Math.min(3,D.queue.length),0,id);
   if(!D.queue.length)D.queue=shuffle(D.ids);
   D.revealed=false;render();
@@ -1142,10 +1154,11 @@ function viewCards(){
     front=`<div class="big">${esc(main)}</div>`;
     if(D.revealed)back=`<div class="ans"><div class="es">${esc(x.es)}</div><button class="play" data-a="play" aria-label="Play audio">🔊</button>${note?`<div class="note">${esc(note)}</div>`:''}${detail()}</div>`;
   }
-  const act=D.revealed
+  const prev=`<button class="btn sq" data-a="prev" aria-label="Previous card" ${D.hist.length?'':'disabled'}>←</button>`;
+  const act=prev+(D.revealed
     ?`<button class="btn" data-a="again">Again</button><button class="btn pri" data-a="next">Next</button>`
-    :`<button class="btn pri" data-a="reveal">Show answer</button>`;
-  return {html:`<div class="card" ${D.revealed?'':'data-a="reveal"'}>${front}${back}</div>`,act};
+    :`<button class="btn pri" data-a="flip">Show answer</button>`);
+  return {html:`<div class="card" data-a="flip">${front}${back}</div>`,act};
 }
 
 /* ---------- Home, routing, events ---------- */
@@ -1280,9 +1293,11 @@ function render(){
 }
 window.addEventListener('hashchange',render);
 document.addEventListener('click',e=>{
+  if(Date.now()-swiped<400)return;
   const b=e.target.closest('[data-a]');if(!b)return;
   switch(b.dataset.a){
-    case'reveal':D.revealed=true;render();if(AUTO&&BY_ID[D.queue[0]].dir==='S')speak(spoken(BY_ID[D.queue[0]]));break;
+    case'flip':flip();break;
+    case'prev':prevCard();break;
     case'next':nextCard(false);autoplay();break;
     case'again':nextCard(true);autoplay();break;
     case'play':speak(spoken(BY_ID[D.queue[0]]));break;
@@ -1290,6 +1305,26 @@ document.addEventListener('click',e=>{
     case'auto':AUTO=!AUTO;try{localStorage.setItem('cafe-auto',AUTO?'1':'0')}catch(e){}showAuto();break;
   }
 });
+/* Keyboard: right = next card, left = previous, space / enter / up / down = flip. */
+document.addEventListener('keydown',e=>{
+  const tg=e.target&&e.target.closest?e.target:document.body;
+  if(!D||e.metaKey||e.ctrlKey||e.altKey||tg.closest('input,select,textarea'))return;
+  const onCtl=!!tg.closest('button,a');
+  if(e.key==='ArrowRight'){e.preventDefault();nextCard(false);autoplay()}
+  else if(e.key==='ArrowLeft'){e.preventDefault();prevCard()}
+  else if(e.key==='ArrowUp'||e.key==='ArrowDown'||((e.key===' '||e.key==='Enter')&&!onCtl)){e.preventDefault();flip()}
+});
+/* Swipe: left = next card, right = previous, tap = flip. */
+let tx=0,ty=0,tt=0;
+document.addEventListener('touchstart',e=>{const q=e.touches[0];tx=q.clientX;ty=q.clientY;tt=Date.now()},{passive:true});
+document.addEventListener('touchend',e=>{
+  if(!D||e.target.closest('.dock,header'))return;
+  const q=e.changedTouches[0], dx=q.clientX-tx, dy=q.clientY-ty;
+  if(Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.5||Date.now()-tt>800)return;
+  if(dx<0){nextCard(false);autoplay()}else prevCard();
+  swiped=Date.now();
+},{passive:true});
+let swiped=0;
 showAuto();render();
 </script>
 </body>
