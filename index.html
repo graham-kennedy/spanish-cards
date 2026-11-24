@@ -85,6 +85,8 @@ h2{margin:32px 0 12px;font-size:12px;line-height:16px;font-weight:600;letter-spa
 .csh{margin:32px 0 12px}
 .csg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.csg.two{grid-template-columns:repeat(2,1fr)}.csg.four{grid-template-columns:repeat(4,1fr)}
 .cs{background:var(--raised);padding:8px 10px;min-width:0}.cs b,.cs span{display:block;overflow-wrap:anywhere}.cs b{font-size:16px;line-height:22px}.cs span{color:var(--muted);font-size:14px;line-height:18px;min-height:0}
+.csg.one{grid-template-columns:1fr;gap:0}
+.csr{display:grid;grid-template-columns:104px 1fr;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}.csr b{font-size:16px;line-height:22px}.csr span{color:var(--muted);font-size:15px;line-height:22px}
 .csn{margin:12px 0 0;color:var(--muted);font-size:16px;line-height:24px}.csn b{color:var(--ink)}
 .csscroll{overflow-x:auto;margin:0 -16px;padding:0 16px}
 .cst{border-collapse:collapse;min-width:560px;width:100%;font-size:15px;line-height:22px}
@@ -1526,7 +1528,7 @@ function viewCheat(){
   const NUMS=[[0,'cero'],[1,'uno'],[2,'dos'],[3,'tres'],[4,'cuatro'],[5,'cinco'],[6,'seis'],[7,'siete'],[8,'ocho'],[9,'nueve'],[10,'diez'],[11,'once'],[12,'doce'],[13,'trece'],[14,'catorce'],[15,'quince'],[16,'dieciséis'],[17,'diecisiete'],[18,'dieciocho'],[19,'diecinueve'],[20,'veinte'],[21,'veintiuno'],[22,'veintidós'],[23,'veintitrés'],[24,'veinticuatro'],[25,'veinticinco'],[26,'veintiséis'],[27,'veintisiete'],[28,'veintiocho'],[29,'veintinueve'],[30,'treinta'],[40,'cuarenta'],[50,'cincuenta'],[60,'sesenta'],[70,'setenta'],[80,'ochenta'],[90,'noventa'],[100,'cien'],[1000,'mil']];
   const DAYS=[['lunes','Monday'],['martes','Tuesday'],['miércoles','Wednesday'],['jueves','Thursday'],['viernes','Friday'],['sábado','Saturday'],['domingo','Sunday']];
   const colors=CARDS.filter(x=>x.cat==='Colors'&&x.kind==='~').map(x=>cell(x.es,splitNote(x.en)[0]));
-  const letters=CARDS.filter(x=>x.kind==='^').slice(0,27).map(x=>cell(splitNote(x.en)[0]+'  '+x.es,''));
+  const letters=CARDS.filter(x=>x.kind==='^').map(x=>{const [l,n]=splitNote(x.en);return `<div class="csr"><b>${esc(l)} · ${esc(x.es)}</b><span>${esc(n)}</span></div>`});
   const verbs=['ser','estar','tener','ir','querer','poder'].map(k=>CARDS.find(x=>x.kind==='@'&&x.es===k));
   const vt=`<div class="csscroll"><table class="cst"><tr><th></th>${PRON.map(p=>`<th>${p}</th>`).join('')}</tr>${verbs.map(v=>`<tr><th>${esc(v.es)}</th>${v.verb.forms.map(f=>`<td><b>${esc(f)}</b></td>`).join('')}</tr>`).join('')}</table></div>`;
   return `<div class="vhead"><div class="big">Cheat sheet</div></div>`+
@@ -1540,7 +1542,7 @@ function viewCheat(){
     sec('Colors',colors)+
     sec('Directions',[['arriba','up'],['abajo','down'],['a la izquierda','left'],['a la derecha','right'],['todo recto','straight ahead'],['delante de','in front of'],['detrás de','behind'],['al lado de','next to'],['encima de','on top of'],['debajo de','under'],['dentro de','inside'],['fuera de','outside'],['entre','between'],['cerca / lejos','near / far'],['el norte','north'],['el sur','south'],['el este','east'],['el oeste','west']].map(([a,b])=>cell(a,b)),'two')+
     sec('Question words',[['¿Qué?','What?'],['¿Quién?','Who?'],['¿Cómo?','How?'],['¿Cuándo?','When?'],['¿Dónde?','Where?'],['¿Por qué?','Why?'],['¿Cuánto?','How much?'],['¿Cuántos?','How many?'],['¿Cuál?','Which one?'],['¿De dónde?','Where from?'],['¿Adónde?','Where to?'],['¿Con quién?','With whom?']].map(([a,b])=>cell(a,b)),'two')+
-    sec('Alphabet',letters,'four')+
+    sec('Alphabet and sounds',letters,'one')+
     `<h2 class="csh">Key verbs (present)</h2>`+vt;
 }
 function viewList(sec,key){
