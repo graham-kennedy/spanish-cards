@@ -80,6 +80,17 @@ h2{margin:32px 0 12px;font-size:12px;line-height:16px;font-weight:600;letter-spa
 .band{padding:8px 12px;min-width:0}.band b,.band span{display:block;line-height:20px}.band span{font-size:14px}
 .band.wk{background:var(--raised);grid-column:1/6}.band.wk span{color:var(--muted)}
 .band.we{background:var(--band-dark);color:var(--on-dark);grid-column:6/8;border-left:2px solid var(--surface)}
+.topbtns{display:flex;gap:12px;margin-top:16px}.topbtns .testbtn{margin-top:0;flex:2}.topbtns .testbtn.alt{flex:1.4;background:var(--surface);color:var(--ink);border:1px solid var(--strong)}
+.topbtns .testbtn.alt:hover{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.csh{margin:32px 0 12px}
+.csg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.csg.two{grid-template-columns:repeat(2,1fr)}.csg.four{grid-template-columns:repeat(4,1fr)}
+.cs{background:var(--raised);padding:8px 10px;min-width:0}.cs b,.cs span{display:block;overflow-wrap:anywhere}.cs b{font-size:16px;line-height:22px}.cs span{color:var(--muted);font-size:14px;line-height:18px;min-height:0}
+.csn{margin:12px 0 0;color:var(--muted);font-size:16px;line-height:24px}.csn b{color:var(--ink)}
+.csscroll{overflow-x:auto;margin:0 -16px;padding:0 16px}
+.cst{border-collapse:collapse;min-width:560px;width:100%;font-size:15px;line-height:22px}
+.cst th,.cst td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.cst th{font-size:12px;line-height:16px;font-weight:600;color:var(--muted)}.cst tr>th:first-child{font-size:16px;color:var(--ink);font-weight:700}
+@media print{header,.dock,.topbtns{display:none!important}main{padding:0}body{font-size:12pt}.csg{gap:4px}.cs{background:none;border:1px solid #bbb}}
 .vhead{margin-top:16px}.vhead .note{margin-top:4px}
 .tags+.tags{margin-top:12px}
 .card[data-a]{cursor:pointer}
@@ -1382,6 +1393,7 @@ const SECTIONS={
 function route(){
   const h=decodeURIComponent(location.hash.slice(1)).split('/');
   if(h[0]==='test')return{type:'deck',test:true,key:'#test'};
+  if(h[0]==='cheat')return{type:'cheat'};
   const sec=SECTIONS[h[0]];
   if(sec){const item=sec.items.find(i=>i.id===h[1]);return item?{type:'page',key:h[0],sec,item}:{type:'list',key:h[0],sec}}
   const pool=h[0]==='g'?GRAM[h[1]]:h[0]==='s'?SIT[h[1]]:h[0]==='t'?TIME[h[1]]:h[0]==='v'?VOC[h[1]]:h[0]==='b'?BASICS[h[1]]:h[0]==='all'?CARDS.map(c=>c.id):null;
@@ -1390,9 +1402,33 @@ function route(){
 function viewHome(){
   const grp=(title,map,k)=>`<h2>${title}</h2><div class="tags">${Object.entries(map).map(([n,ids])=>
     `<a class="tagbtn" href="#${k}/${encodeURIComponent(n)}"><span>${esc(n)}</span><i>${ids.length}</i></a>`).join('')}</div>`;
-  return `<a class="testbtn" href="#test">Test now</a>`+grp('Basics',BASICS,'b')+grp('Grammar',GRAM,'g')+grp('Situation',SIT,'s')+grp('Time',TIME,'t')+grp('Vocabulary',VOC,'v')+
+  return `<div class="topbtns"><a class="testbtn" href="#test">Test now</a><a class="testbtn alt" href="#cheat">Cheat sheet</a></div>`+grp('Basics',BASICS,'b')+grp('Grammar',GRAM,'g')+grp('Situation',SIT,'s')+grp('Time',TIME,'t')+grp('Vocabulary',VOC,'v')+
     `<div class="tags"><a class="tagbtn" href="#all"><span>All cards</span><i>${CARDS.length}</i></a></div>`+
     `<h2>Reference</h2><div class="tags">${Object.entries(SECTIONS).map(([k,s])=>`<a class="tagbtn" href="#${k}"><span>${s.title}</span><i>${s.items.length}</i></a>`).join('')}</div>`;
+}
+/* ---------- Cheat sheet: one page with the basics ---------- */
+function viewCheat(){
+  const cell=(a,b)=>`<div class="cs"><b>${esc(a)}</b><span>${esc(b)}</span></div>`;
+  const sec=(title,items,cls='')=>`<h2 class="csh">${esc(title)}</h2><div class="csg ${cls}">${items.join('')}</div>`;
+  const NUMS=[[0,'cero'],[1,'uno'],[2,'dos'],[3,'tres'],[4,'cuatro'],[5,'cinco'],[6,'seis'],[7,'siete'],[8,'ocho'],[9,'nueve'],[10,'diez'],[11,'once'],[12,'doce'],[13,'trece'],[14,'catorce'],[15,'quince'],[16,'dieciséis'],[17,'diecisiete'],[18,'dieciocho'],[19,'diecinueve'],[20,'veinte'],[21,'veintiuno'],[22,'veintidós'],[23,'veintitrés'],[24,'veinticuatro'],[25,'veinticinco'],[26,'veintiséis'],[27,'veintisiete'],[28,'veintiocho'],[29,'veintinueve'],[30,'treinta'],[40,'cuarenta'],[50,'cincuenta'],[60,'sesenta'],[70,'setenta'],[80,'ochenta'],[90,'noventa'],[100,'cien'],[1000,'mil']];
+  const DAYS=[['lunes','Monday'],['martes','Tuesday'],['miércoles','Wednesday'],['jueves','Thursday'],['viernes','Friday'],['sábado','Saturday'],['domingo','Sunday']];
+  const colors=CARDS.filter(x=>x.cat==='Colors'&&x.kind==='~').map(x=>cell(x.es,splitNote(x.en)[0]));
+  const letters=CARDS.filter(x=>x.kind==='^').slice(0,27).map(x=>cell(splitNote(x.en)[0]+'  '+x.es,''));
+  const verbs=['ser','estar','tener','ir','querer','poder'].map(k=>CARDS.find(x=>x.kind==='@'&&x.es===k));
+  const vt=`<div class="csscroll"><table class="cst"><tr><th></th>${PRON.map(p=>`<th>${p}</th>`).join('')}</tr>${verbs.map(v=>`<tr><th>${esc(v.es)}</th>${v.verb.forms.map(f=>`<td><b>${esc(f)}</b></td>`).join('')}</tr>`).join('')}</table></div>`;
+  return `<div class="vhead"><div class="big">Cheat sheet</div></div>`+
+    sec('Numbers',NUMS.map(([n,w])=>cell(w,String(n))))+
+    `<p class="csn"><b>31 to 99:</b> tens + <b>y</b> + one digit, like treinta y cinco (35).</p>`+
+    sec('Days',DAYS.map(([es,en])=>cell(es,en)),'two')+
+    sec('Months',MONTHS_TL.map(([es,en])=>cell(es,en)))+
+    sec('Seasons',[['la primavera','spring'],['el verano','summer'],['el otoño','autumn'],['el invierno','winter']].map(([a,b])=>cell(a,b)),'two')+
+    sec('Telling time',[['¿Qué hora es?','What time is it?'],['Es la una.','It\'s 1:00.'],['Son las dos.','It\'s 2:00.'],['y cuarto','quarter past (:15)'],['y media','half past (:30)'],['menos cuarto','quarter to (:45)'],['¿A qué hora…?','At what time…?'],['a las ocho','at 8:00'],['de la mañana','a.m.'],['de la tarde / noche','p.m.'],['las 15:30','24-hour clock'],['mediodía / medianoche','noon / midnight']].map(([a,b])=>cell(a,b)),'two')+
+    sec('Now, before, after',[['anteayer','day before yesterday'],['ayer','yesterday'],['hoy','today'],['mañana','tomorrow'],['pasado mañana','day after tomorrow'],['ahora','now'],['la semana pasada','last week'],['esta semana','this week'],['la semana que viene','next week'],['el mes pasado','last month'],['este mes','this month'],['el mes que viene','next month'],['el año pasado','last year'],['este año','this year'],['el año que viene','next year'],['por la mañana','in the morning'],['por la tarde','in the afternoon'],['por la noche','at night']].map(([a,b])=>cell(a,b)),'two')+
+    sec('Colors',colors)+
+    sec('Directions',[['arriba','up'],['abajo','down'],['a la izquierda','left'],['a la derecha','right'],['todo recto','straight ahead'],['delante de','in front of'],['detrás de','behind'],['al lado de','next to'],['encima de','on top of'],['debajo de','under'],['dentro de','inside'],['fuera de','outside'],['entre','between'],['cerca / lejos','near / far'],['el norte','north'],['el sur','south'],['el este','east'],['el oeste','west']].map(([a,b])=>cell(a,b)),'two')+
+    sec('Question words',[['¿Qué?','What?'],['¿Quién?','Who?'],['¿Cómo?','How?'],['¿Cuándo?','When?'],['¿Dónde?','Where?'],['¿Por qué?','Why?'],['¿Cuánto?','How much?'],['¿Cuántos?','How many?'],['¿Cuál?','Which one?'],['¿De dónde?','Where from?'],['¿Adónde?','Where to?'],['¿Con quién?','With whom?']].map(([a,b])=>cell(a,b)),'two')+
+    sec('Alphabet',letters,'four')+
+    `<h2 class="csh">Key verbs (present)</h2>`+vt;
 }
 function viewList(sec,key){
   return `<div class="tags">${sec.items.map(v=>`<a class="tagbtn" href="#${key}/${encodeURIComponent(v.id)}"><span>${esc(v.label)}</span><i>${esc(v.sub)}</i></a>`).join('')}</div>`;
@@ -1410,6 +1446,7 @@ function render(){
   $('#auto').hidden=$('#act').hidden=!deck;
   if('speechSynthesis' in window&&!deck)speechSynthesis.cancel();
   if(r.type==='home'){D=null;curKey=null;return paint(viewHome())}
+  if(r.type==='cheat'){D=null;curKey=null;return paint(viewCheat())}
   if(r.type==='list'){D=null;curKey=null;return paint(viewList(r.sec,r.key))}
   if(r.type==='page'){D=null;curKey=null;return paint(r.sec.page(r.item))}
   const fresh=!D||curKey!==r.key;
